@@ -1,0 +1,18 @@
+﻿a fixture is made up of two teams
+a list of fixtures is published, with a deadline (first ko)
+players of the game submit scores for each fixture before the deadline
+fixture results are submitted after each fixture has been played
+players are scored on the accuracy of their predictions
+	3 points for correct score
+	1 point for correct outcome (homewin, awaywin, draw)
+
+
+admin can submit batch of fixtures (gameweek?)
+admin can work on batch before submitting
+if batch must be changed after submitted any submitted player scores must be dropped
+players can work on open fixtures up until deadline
+admin can submit fixture results at any time
+players can review their score for previous gameweeks
+league table includes number of a player has submitted predictions for
+league table includes player accuracy index score (function of prediction v result difference, sum & home away separate)
+league position vs gameweek line chart
