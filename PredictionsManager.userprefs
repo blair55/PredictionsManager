@@ -3,33 +3,8 @@
   <MonoDevelop.Ide.Workbench ActiveDocument="PredictionsManager.Domain/Component1.fs">
     <Files>
       <File FileName="PredictionsManager.Domain/Requirements.txt" Line="1" Column="1" />
-      <File FileName="PredictionsManager.Domain/Component1.fs" Line="37" Column="37" />
+      <File FileName="PredictionsManager.Domain/Component1.fs" Line="27" Column="27" />
     </Files>
-    <Pads>
-      <Pad Id="ProjectPad">
-        <State expanded="True">
-          <Node name="PredictionsManager.Domain" expanded="True">
-            <Node name="Component1.fs" selected="True" />
-          </Node>
-        </State>
-      </Pad>
-      <Pad Id="MonoDevelop.NUnit.TestPad">
-        <State expanded="True">
-          <Node name="PredictionsManager.Domain" expanded="True">
-            <Node name="PredictionsManager" expanded="True">
-              <Node name="Domain" expanded="True">
-                <Node name="Tests" expanded="True">
-                  <Node name="Given a LightBulb that has had its state set to true" expanded="True" />
-                  <Node name="Outcome Tests" expanded="True">
-                    <Node name="when home score is greater than away score the outcome is home win" selected="True" />
-                  </Node>
-                </Node>
-              </Node>
-            </Node>
-          </Node>
-        </State>
-      </Pad>
-    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />

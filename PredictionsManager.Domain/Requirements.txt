@@ -1,5 +1,5 @@
 ﻿a fixture is made up of two teams
-a list of fixtures is published, with a deadline (first ko)
+a list of fixtures is published as a gameweek, with a deadline (first ko)
 players of the game submit scores for each fixture before the deadline
 fixture results are submitted after each fixture has been played
 players are scored on the accuracy of their predictions
