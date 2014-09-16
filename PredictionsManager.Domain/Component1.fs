@@ -1,7 +1,6 @@
 ﻿namespace PredictionsManager.Domain
 
 open System
-open System.Diagnostics
 
 module Domain =
 
@@ -87,21 +86,17 @@ module Domain =
          { fixture=someFixtures.[4]; score=(0,1); }
          { fixture=someFixtures.[5]; score=(3,2); } ]
 
-    // calculating a game week score for player
-        // get player predictions for gw n
-        // get all results
-        // for each prediction find result & sum points
-
     let getGameWeekScore (predictions:Prediction list) results player gameWeekNumber =
         let playerPredictionsForGameWeek =
             predictions
             |> List.filter(fun p -> p.player = player)
             |> List.filter(fun p -> p.fixture.gameWeek.number = gameWeekNumber)
-        
-        let points =
-            playerPredictionsForGameWeek
+        playerPredictionsForGameWeek
             |> List.sumBy(fun p -> getPointsForPrediction p results)
-
-        points
+       
+    let getTotalPlayerScore (predictions:Prediction list) results player =
+            predictions
+            |> List.filter(fun p -> p.player = player)
+            |> List.sumBy(fun p -> getPointsForPrediction p results)
 
 
