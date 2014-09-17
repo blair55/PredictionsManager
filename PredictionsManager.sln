@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
 Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "PredictionsManager.Domain", "PredictionsManager.Domain\PredictionsManager.Domain.fsproj", "{310632B0-2816-483E-A5F6-60D354080C0C}"
 EndProject
 Global
