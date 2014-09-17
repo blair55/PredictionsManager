@@ -34,10 +34,11 @@
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Component1.fs" />
+    <Compile Include="Domain.fs" />
+    <Compile Include="Presentation.fs" />
     <Compile Include="FsUnitSample.fs" />
-    <None Include="Requirements.txt" />
     <Compile Include="Tests.fs" />
+    <None Include="Requirements.txt" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
