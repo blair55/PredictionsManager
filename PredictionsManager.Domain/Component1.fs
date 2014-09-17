@@ -29,15 +29,18 @@ module Domain =
         else if fst score < snd score then AwayWin
         else Draw
 
-    let getPointsForPrediction (prediction:Prediction) (results:Result list) =
-        // find matching result for prediction
-        let result = results |> List.find(fun r -> r.fixture = prediction.fixture)
+    let getPointsForPredictionComparedToResult (prediction:Prediction) result =
         if prediction.score = result.score then 3
         else
             let predictionOutcome = getOutcome prediction.score
             let resultOutcome = getOutcome result.score
             if predictionOutcome = resultOutcome then 1 else 0
-            
+        
+    let getPointsForPrediction (prediction:Prediction) (results:Result list) =
+        // find matching result for prediction
+        let result = results |> List.find(fun r -> r.fixture = prediction.fixture)
+        getPointsForPredictionComparedToResult prediction result
+
     let getGameWeekScore (predictions:Prediction list) results player gameWeekNumber =
         let playerPredictionsForGameWeek =
             predictions
@@ -58,6 +61,7 @@ module Domain =
         allPlayers |> List.map(getTotalPlayerScorePartialFunc)
 
     let getPlayerName (Player name) = name
+    let getGameWeekNo (GwNo n) = n
     
     let printLeagueTableRow position row =
         let playerName = getPlayerName (row|>fst)
@@ -75,27 +79,63 @@ module Domain =
         let resultsForGameWeek = results |> List.filter(fun r -> r.fixture.gameWeek.number = gameWeek)
         displayLeagueTable predictionsForGameWeek resultsForGameWeek
 
+    let displayGameWeekDetailsForPlayer (predictions:Prediction list) results player gameWeek =
+        let resultsForGameWeek = results |> List.filter(fun r -> r.fixture.gameWeek.number = gameWeek)
+        let predictionsForGameWeekForPlayer =
+            predictions
+            |> List.filter(fun p -> p.fixture.gameWeek.number = gameWeek)
+            |> List.filter(fun p -> p.player = player)
+
+        let printGameWeekFixturePoints (r:Result) (p:Prediction option) =
+            match p with
+            | Some p ->
+                let points = getPointsForPredictionComparedToResult p r
+                printfn "%sv%s %iv%i %iv%i %i" r.fixture.home r.fixture.away (fst r.score) (snd r.score) (fst p.score) (snd p.score) points
+            | None -> printfn "%sv%s %iv%i no prediction" r.fixture.home r.fixture.away (fst r.score) (snd r.score)
+
+        printfn "GameWeek %i" (getGameWeekNo gameWeek)
+        resultsForGameWeek
+        |> List.iter(fun r -> // find matching prediction by fixture
+                              let p = predictionsForGameWeekForPlayer |> List.tryFind(fun pr -> pr.fixture = r.fixture)
+                              printGameWeekFixturePoints r p)
+
+        //printfn "total: %i" 
+        printfn ""
+        ()
+
     // dummy data
 
+    let rnd = new System.Random()
     let teamsList = [ "Arsenal"; "Chelsea"; "Liverpool"; "Everton"; "WestHam"; "Qpr" ]
     let playersList = [ for p in [ "bob"; "jim"; "tom"; "ian"; "ron"; "jon" ] -> p|>player ]
-    let gameWeeksList = [ for i in 1..20 -> { id=Guid.NewGuid()|>gwid; number=(gwno i); description=""; deadline="2014-1-1"|>dl } ]
+    let gameWeeksList = [ for i in 1..20 -> { GameWeek.id=Guid.NewGuid()|>gwid; number=(gwno i); description=""; deadline="2014-1-1"|>dl } ]
+
+    let getTwoDifferentRndTeams (teams:string list) =
+        let getRandomTeamIndex() = rnd.Next(0, teams.Length - 1)
+        let homeTeamIndex = getRandomTeamIndex()
+        let rec getTeamIndexThatIsnt notThis =
+            let index = getRandomTeamIndex()
+            match index with
+            | i when index=notThis -> getTeamIndexThatIsnt notThis
+            | _ -> index
+        let awayTeamIndex = getTeamIndexThatIsnt homeTeamIndex
+        (teams.[homeTeamIndex], teams.[awayTeamIndex])
 
     let buildFixtureList (teams:string list) gameWeeks =    
         let fixturesPerWeek = teams.Length / 2;
         let buildFixturesForGameWeek teams gw =
-            [ for i in 1..fixturesPerWeek -> { id= Guid.NewGuid()|>fxid; gameWeek=gw; home="home team"; away="away team" } ]
+            [ for i in 1..fixturesPerWeek -> (  let randomTeams = getTwoDifferentRndTeams teams
+                                                { id= Guid.NewGuid()|>fxid; gameWeek=gw; home=fst randomTeams; away=snd randomTeams }  ) ]
         gameWeeks
             |> List.map(fun gw -> buildFixturesForGameWeek teams gw)    
             |> List.collect(fun f -> f)
 
-    let rnd = new System.Random()
     let getRndScore() =
         let getRndGoals() = rnd.Next(0, 4)
         getRndGoals(), getRndGoals()
 
     let buildPredictionsList (fixtures:Fixture list) players =
-        let generatePrediction pl f = { fixture=f; score=getRndScore(); player=pl }
+        let generatePrediction pl f = { Prediction.fixture=f; score=getRndScore(); player=pl }
         players
         |> List.map(fun pl -> fixtures |> List.map(fun f -> generatePrediction pl f))
         |> List.collect(fun p -> p)
@@ -104,87 +144,7 @@ module Domain =
         let generateResult f = {fixture=f; score=getRndScore()}
         fixtures |> List.map(fun f -> generateResult f)
 
-//  yield seq { id= Guid.NewGuid()|>fxid; gameWeek=someGameWeeks.[0]; home="Arsenal"; away="Liverpool" } }
+    let fixtures = buildFixtureList teamsList gameWeeksList
+    let predictions = buildPredictionsList fixtures playersList
+    let results = buildResults fixtures
 
-//    let someGameWeeks = [
-//        { id= Guid.NewGuid()|>gwid; number=1|>gwno; description=""; deadline="2014-1-1"|>dl }
-//        { id= Guid.NewGuid()|>gwid; number=2|>gwno; description=""; deadline="2014-1-3"|>dl }
-//        { id= Guid.NewGuid()|>gwid; number=3|>gwno; description=""; deadline="2014-1-5"|>dl }
-//        { id= Guid.NewGuid()|>gwid; number=4|>gwno; description=""; deadline="2014-1-5"|>dl }
-//        { id= Guid.NewGuid()|>gwid; number=5|>gwno; description=""; deadline="2014-1-5"|>dl }
-//        { id= Guid.NewGuid()|>gwid; number=6|>gwno; description=""; deadline="2014-1-5"|>dl }
-//         ]
-
-//    let someFixtures = [
-//        { id= Guid.NewGuid()|>fxid; gameWeek=someGameWeeks.[0]; home="Arsenal"; away="Liverpool" }
-//        { id= Guid.NewGuid()|>fxid; gameWeek=someGameWeeks.[0]; home="Arsenal"; away="Liverpool" }
-//        { id= Guid.NewGuid()|>fxid; gameWeek=someGameWeeks.[1]; home="Arsenal"; away="Liverpool" }
-//        { id= Guid.NewGuid()|>fxid; gameWeek=someGameWeeks.[1]; home="Arsenal"; away="Liverpool" }
-//        { id= Guid.NewGuid()|>fxid; gameWeek=someGameWeeks.[2]; home="Arsenal"; away="Liverpool" }
-//        { id= Guid.NewGuid()|>fxid; gameWeek=someGameWeeks.[2]; home="Arsenal"; away="Liverpool" }
-//        { id= Guid.NewGuid()|>fxid; gameWeek=someGameWeeks.[3]; home="Arsenal"; away="Liverpool" }
-//        { id= Guid.NewGuid()|>fxid; gameWeek=someGameWeeks.[3]; home="Arsenal"; away="Liverpool" }
-//        { id= Guid.NewGuid()|>fxid; gameWeek=someGameWeeks.[4]; home="Arsenal"; away="Liverpool" }
-//        { id= Guid.NewGuid()|>fxid; gameWeek=someGameWeeks.[4]; home="Arsenal"; away="Liverpool" }
-//        { id= Guid.NewGuid()|>fxid; gameWeek=someGameWeeks.[5]; home="Arsenal"; away="Liverpool" }
-//        { id= Guid.NewGuid()|>fxid; gameWeek=someGameWeeks.[5]; home="Arsenal"; away="Liverpool" }
-//        ]
-//    
-//    let somePredictions = [
-//         // gw1
-//         { fixture=someFixtures.[0]; score=(2,1); player="a"|>player }
-//         { fixture=someFixtures.[1]; score=(4,4); player="a"|>player }
-//         { fixture=someFixtures.[0]; score=(1,0); player="b"|>player }
-//         { fixture=someFixtures.[1]; score=(5,1); player="b"|>player }
-//         { fixture=someFixtures.[0]; score=(1,2); player="c"|>player }
-//         { fixture=someFixtures.[1]; score=(2,2); player="c"|>player }
-//         //gw2
-//         { fixture=someFixtures.[2]; score=(3,5); player="a"|>player }
-//         { fixture=someFixtures.[3]; score=(5,3); player="a"|>player }
-//         { fixture=someFixtures.[2]; score=(3,2); player="b"|>player }
-//         { fixture=someFixtures.[3]; score=(1,4); player="b"|>player }
-//         { fixture=someFixtures.[2]; score=(0,5); player="c"|>player }
-//         { fixture=someFixtures.[3]; score=(5,1); player="c"|>player }
-//         //gw3
-//         { fixture=someFixtures.[4]; score=(2,1); player="a"|>player }
-//         { fixture=someFixtures.[5]; score=(1,3); player="a"|>player }
-//         { fixture=someFixtures.[4]; score=(4,1); player="b"|>player }
-//         { fixture=someFixtures.[5]; score=(2,4); player="b"|>player }
-//         { fixture=someFixtures.[4]; score=(1,1); player="c"|>player }
-//         { fixture=someFixtures.[5]; score=(2,0); player="c"|>player }
-//         //gw4
-//         { fixture=someFixtures.[6]; score=(3,2); player="a"|>player }
-//         { fixture=someFixtures.[7]; score=(4,1); player="a"|>player }
-//         { fixture=someFixtures.[6]; score=(3,5); player="b"|>player }
-//         { fixture=someFixtures.[7]; score=(2,2); player="b"|>player }
-//         { fixture=someFixtures.[6]; score=(2,3); player="c"|>player }
-//         { fixture=someFixtures.[7]; score=(1,4); player="c"|>player }
-//         //gw5
-//         { fixture=someFixtures.[8]; score=(1,2); player="a"|>player }
-//         { fixture=someFixtures.[9]; score=(1,2); player="a"|>player }
-//         { fixture=someFixtures.[8]; score=(2,3); player="b"|>player }
-//         { fixture=someFixtures.[9]; score=(3,2); player="b"|>player }
-//         { fixture=someFixtures.[8]; score=(4,2); player="c"|>player }
-//         { fixture=someFixtures.[9]; score=(2,4); player="c"|>player }
-//         //gw6
-//         { fixture=someFixtures.[10]; score=(3,1); player="a"|>player }
-//         { fixture=someFixtures.[11]; score=(2,3); player="a"|>player }
-//         { fixture=someFixtures.[10]; score=(1,1); player="b"|>player }
-//         { fixture=someFixtures.[11]; score=(4,3); player="b"|>player }
-//         { fixture=someFixtures.[10]; score=(0,2); player="c"|>player }
-//         { fixture=someFixtures.[11]; score=(2,0); player="c"|>player } ]
-
-    let someResults = [
-         { fixture=someFixtures.[0]; score=(2,1); }
-         { fixture=someFixtures.[1]; score=(2,4); }
-         { fixture=someFixtures.[2]; score=(5,2); }
-         { fixture=someFixtures.[3]; score=(1,0); }
-         { fixture=someFixtures.[4]; score=(0,1); }
-         { fixture=someFixtures.[5]; score=(3,2); }
-         { fixture=someFixtures.[6]; score=(1,2); }
-         { fixture=someFixtures.[7]; score=(3,3); }
-         { fixture=someFixtures.[8]; score=(2,4); }
-         { fixture=someFixtures.[9]; score=(4,1); }
-         { fixture=someFixtures.[10]; score=(1,2); }
-         { fixture=someFixtures.[11]; score=(2,1); }
-         ]
