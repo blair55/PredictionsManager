@@ -91,7 +91,8 @@ module Domain =
             | Some p ->
                 let points = getPointsForPredictionComparedToResult p r
                 printfn "%sv%s %iv%i %iv%i %i" r.fixture.home r.fixture.away (fst r.score) (snd r.score) (fst p.score) (snd p.score) points
-            | None -> printfn "%sv%s %iv%i no prediction" r.fixture.home r.fixture.away (fst r.score) (snd r.score)
+            | None ->
+                printfn "%sv%s %iv%i no prediction" r.fixture.home r.fixture.away (fst r.score) (snd r.score)
 
         printfn "GameWeek %i" (getGameWeekNo gameWeek)
         resultsForGameWeek
