@@ -19,10 +19,14 @@ module Presentation =
 
     let printGameWeekDetailsForPlayer (predictions:Prediction list) results player gameWeekNo =
         let gameWeekDetailsForPlayer = getGameWeekDetailsForPlayer predictions results player gameWeekNo
-        let printGameWeekDetailsRow (row:GameWeekDetailsRow) =
+        let printGameWeekDetailsRow row =
             let stringFixture fixture = sprintf "%s v %s" fixture.home fixture.away
             let stringScore score = sprintf "%iv%i" (fst score) (snd score)
-            printfn "%s %s %s %i" (stringFixture row.fixture) (stringScore row.resultScore) (stringScore row.predictionScore) row.points
+            let getPredictionDescription (prediction:Prediction option) =
+                match prediction with
+                | Some p -> stringScore p.score
+                | None -> "No prediction submitted"
+            printfn "%s %s %s %i" (stringFixture row.fixture) (stringScore row.result.score) (getPredictionDescription row.prediction) row.points
         printfn "GameWeek %i" (getGameWeekNo gameWeekNo)
         gameWeekDetailsForPlayer |> List.iter printGameWeekDetailsRow
         printfn "Total %i" (gameWeekDetailsForPlayer |> List.sumBy(fun gwd -> gwd.points))
