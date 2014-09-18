@@ -13,7 +13,9 @@ if batch must be changed after submitted any submitted player scores must be dro
 players can work on open fixtures up until deadline
 admin can submit fixture results at any time
 players can review their score for previous gameweeks
-league table includes number of a player has submitted predictions for
+	all weeks view, table of gwno & points
+	in detail view with predicions v results, outcome & points
+league table includes number of fixtures player has submitted predictions for
 league table includes player accuracy index score (function of prediction v result difference, sum & home away separate)
 league position vs gameweek line chart
 sum points for all users per week to see high/low scoring weeks

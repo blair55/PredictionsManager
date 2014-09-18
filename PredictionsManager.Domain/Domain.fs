@@ -11,6 +11,10 @@ module Domain =
     type Player = Player of string
     type GwNo = GwNo of int
 
+    // deconstructors
+    let getPlayerName (Player name) = name
+    let getGameWeekNo (GwNo n) = n
+
     let gwid g = GwId g 
     let fxid g = FxId g
     let player p = Player p
@@ -24,6 +28,12 @@ module Domain =
     type Result = { fixture : Fixture; score : Score }
     type Outcome = HomeWin | AwayWin | Draw
 
+    // dtos / viewmodels
+    type LeagueTableRow = { position:int; player:Player; points:int }
+    type GameWeekAndPoints = GwNo * int
+    type GameWeekDetailsRow = { fixture:Fixture; predictionScore:Score; resultScore:Score; points:int }
+
+    // base calculations
     let getOutcome score =
         if fst score > snd score then HomeWin
         else if fst score < snd score then AwayWin
@@ -37,72 +47,61 @@ module Domain =
             if predictionOutcome = resultOutcome then 1 else 0
         
     let getPointsForPrediction (prediction:Prediction) (results:Result list) =
-        // find matching result for prediction
         let result = results |> List.find(fun r -> r.fixture = prediction.fixture)
         getPointsForPredictionComparedToResult prediction result
 
-    let getGameWeekScore (predictions:Prediction list) results player gameWeekNumber =
-        let playerPredictionsForGameWeek =
-            predictions
-            |> List.filter(fun p -> p.player = player)
-            |> List.filter(fun p -> p.fixture.gameWeek.number = gameWeekNumber)
-        playerPredictionsForGameWeek
-            |> List.sumBy(fun p -> getPointsForPrediction p results)
-       
     let getTotalPlayerScore (predictions:Prediction list) results player =
             let score = predictions
                         |> List.filter(fun p -> p.player = player)
                         |> List.sumBy(fun p -> getPointsForPrediction p results)
             player, score
+    
+    // filters
+    let getPlayersPredictions (predictions:Prediction list) player = predictions |> List.filter(fun p -> p.player = player)
+    let getGameWeekPredictions (predictions:Prediction list) gameWeekNo = predictions |> List.filter(fun p -> p.fixture.gameWeek.number = gameWeekNo)
+    let getPlayerGameWeekPredictions (predictions:Prediction list) player gameWeekNo = getGameWeekPredictions (getPlayersPredictions predictions player) gameWeekNo
+    let getGameWeekResults (results:Result list) gameWeekNo = results |> List.filter(fun r -> r.fixture.gameWeek.number = gameWeekNo)
 
+    let getAllGameWeeks (results:Result list) =
+        results
+        |> List.map(fun r -> r.fixture.gameWeek)
+        |> Seq.distinctBy(fun gw -> gw)
+        |> Seq.toList
+
+    // entry points
     let getAllPlayerScores (predictions:Prediction list) results =
         let getTotalPlayerScorePartialFunc = getTotalPlayerScore predictions results
         let allPlayers = predictions |> List.map(fun p -> p.player) |> Seq.distinctBy(fun p -> p) |> Seq.toList
         allPlayers |> List.map(getTotalPlayerScorePartialFunc)
 
-    let getPlayerName (Player name) = name
-    let getGameWeekNo (GwNo n) = n
-    
-    let printLeagueTableRow position row =
-        let playerName = getPlayerName (row|>fst)
-        let score = snd row
-        printfn "%i. %s - %i" position playerName score
-
-    let displayLeagueTable (predictions:Prediction list) results =
+    let getLeagueTable (predictions:Prediction list) results =
         let playerScores = getAllPlayerScores predictions results
         playerScores
         |> List.sortBy(fun ps -> -(snd ps))
-        |> List.iteri(fun i ps -> printLeagueTableRow (i+1) ps)
+        |> List.mapi(fun i ps -> { position=(i+1); player=(fst ps); points=(snd ps) })
 
-    let displayLeagueTableForWeek (predictions:Prediction list) results gameWeek =
-        let predictionsForGameWeek = predictions |> List.filter(fun p -> p.fixture.gameWeek.number = gameWeek)
-        let resultsForGameWeek = results |> List.filter(fun r -> r.fixture.gameWeek.number = gameWeek)
-        displayLeagueTable predictionsForGameWeek resultsForGameWeek
+    let getGameWeekPointsForPlayer (predictions:Prediction list) results player gameWeekNo =
+        let playerGameWeekPredictions = getPlayerGameWeekPredictions predictions player gameWeekNo
+        let points = playerGameWeekPredictions |> List.sumBy(fun p -> getPointsForPrediction p results)
+        gameWeekNo, points
 
-    let displayGameWeekDetailsForPlayer (predictions:Prediction list) results player gameWeek =
-        let resultsForGameWeek = results |> List.filter(fun r -> r.fixture.gameWeek.number = gameWeek)
-        let predictionsForGameWeekForPlayer =
-            predictions
-            |> List.filter(fun p -> p.fixture.gameWeek.number = gameWeek)
-            |> List.filter(fun p -> p.player = player)
+    let getAllGameWeekPointsForPlayer (predictions:Prediction list) results player =
+        let gameWeeks = getAllGameWeeks results
+        let ggwpfp = getGameWeekPointsForPlayer predictions results player
+        gameWeeks
+        |> List.map(fun gw -> ggwpfp gw.number)
+        |> List.sortBy(fun gwp -> getGameWeekNo(fst gwp))
+        
+    let getGameWeekDetailsForPlayer (predictions:Prediction list) results player gameWeekNo =
+        let playerGameWeekPredictions = getPlayerGameWeekPredictions predictions player gameWeekNo
+        let gameWeekResults = getGameWeekResults results gameWeekNo
+        let getGameWeekDetailsRow prediction result =
+            let p = getPointsForPredictionComparedToResult prediction result
+            {GameWeekDetailsRow.fixture=result.fixture; predictionScore=prediction.score; resultScore=result.score; points=p }
+        gameWeekResults
+        |> List.map(fun r -> let prediction = playerGameWeekPredictions |> List.find(fun p -> r.fixture = p.fixture )
+                             getGameWeekDetailsRow prediction r)
 
-        let printGameWeekFixturePoints (r:Result) (p:Prediction option) =
-            match p with
-            | Some p ->
-                let points = getPointsForPredictionComparedToResult p r
-                printfn "%sv%s %iv%i %iv%i %i" r.fixture.home r.fixture.away (fst r.score) (snd r.score) (fst p.score) (snd p.score) points
-            | None ->
-                printfn "%sv%s %iv%i no prediction" r.fixture.home r.fixture.away (fst r.score) (snd r.score)
-
-        printfn "GameWeek %i" (getGameWeekNo gameWeek)
-        resultsForGameWeek
-        |> List.iter(fun r -> // find matching prediction by fixture
-                              let p = predictionsForGameWeekForPlayer |> List.tryFind(fun pr -> pr.fixture = r.fixture)
-                              printGameWeekFixturePoints r p)
-
-        //printfn "total: %i" 
-        printfn ""
-        ()
 
     // dummy data
 
@@ -142,7 +141,7 @@ module Domain =
         |> List.collect(fun p -> p)
         
     let buildResults (fixtures:Fixture list) =
-        let generateResult f = {fixture=f; score=getRndScore()}
+        let generateResult f = {Result.fixture=f; score=getRndScore()}
         fixtures |> List.map(fun f -> generateResult f)
 
     let fixtures = buildFixtureList teamsList gameWeeksList
