@@ -15,6 +15,7 @@ TestResults
 *.suo
 *.user
 *.sln.docstates
+*.userprefs
 
 # Build results
 [Dd]ebug/
@@ -111,3 +112,5 @@ Backup*/
 UpgradeLog*.XML
 
 *.DS_Store
+
+.vagrant

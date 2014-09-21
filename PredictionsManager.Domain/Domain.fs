@@ -15,12 +15,14 @@ module Domain =
     let getPlayerName (Player name) = name
     let getGameWeekNo (GwNo n) = n
     let getFxId (FxId id) = id.ToString()
+    let getGwId (GwId id) = id.ToString()
+    let getDeadline (Deadline date) = date
 
     let dl (s:string) = Convert.ToDateTime(s) |> Deadline
 
     type Score = int * int
-    type GameWeek = {id : GwId; number : GwNo; description : string; deadline : Deadline }
-    type Fixture = {id : FxId; gameWeek : GameWeek; home : Team; away : Team }
+    type GameWeek = { id : GwId; number : GwNo; description : string; deadline : Deadline }
+    type Fixture = { id : FxId; gameWeek : GameWeek; home : Team; away : Team }
     type Prediction = { fixture : Fixture; score : Score; player : Player }
     type Result = { fixture : Fixture; score : Score }
     type Outcome = HomeWin | AwayWin | Draw
@@ -99,49 +101,4 @@ module Domain =
         gameWeekResults
         |> List.map(fun r -> let prediction = playerGameWeekPredictions |> List.tryFind(fun p -> r.fixture = p.fixture )
                              getGameWeekDetailsRow prediction r)
-
-    // dummy data
-
-    let rnd = new System.Random()
-    let teamsList = [ "Arsenal"; "Chelsea"; "Liverpool"; "Everton"; "WestHam"; "Qpr" ]
-    let playersList = [ for p in [ "bob"; "jim"; "tom"; "ian"; "ron"; "jon" ] -> p|>Player ]
-    let gameWeeksList = [ for i in 1..38 -> { GameWeek.id=Guid.NewGuid()|>GwId; number=(GwNo i); description=""; deadline="2014-1-1"|>dl } ]
-
-    let getTwoDifferentRndTeams (teams:string list) =
-        let getRandomTeamIndex() = rnd.Next(0, teams.Length - 1)
-        let homeTeamIndex = getRandomTeamIndex()
-        let rec getTeamIndexThatIsnt notThis =
-            let index = getRandomTeamIndex()
-            match index with
-            | i when index=notThis -> getTeamIndexThatIsnt notThis
-            | _ -> index
-        let awayTeamIndex = getTeamIndexThatIsnt homeTeamIndex
-        (teams.[homeTeamIndex], teams.[awayTeamIndex])
-
-    let buildFixtureList (teams:string list) gameWeeks =    
-        let fixturesPerWeek = teams.Length / 2;
-        let buildFixturesForGameWeek teams gw =
-            [ for i in 1..fixturesPerWeek -> (  let randomTeams = getTwoDifferentRndTeams teams
-                                                { id= Guid.NewGuid()|>FxId; gameWeek=gw; home=fst randomTeams; away=snd randomTeams }  ) ]
-        gameWeeks
-            |> List.map(fun gw -> buildFixturesForGameWeek teams gw)    
-            |> List.collect(fun f -> f)
-
-    let getRndScore() =
-        let getRndGoals() = rnd.Next(0, 4)
-        getRndGoals(), getRndGoals()
-
-    let buildPredictionsList (fixtures:Fixture list) players =
-        let generatePrediction pl f = { Prediction.fixture=f; score=getRndScore(); player=pl }
-        players
-        |> List.map(fun pl -> fixtures |> List.map(fun f -> generatePrediction pl f))
-        |> List.collect(fun p -> p)
-        
-    let buildResults (fixtures:Fixture list) =
-        let generateResult f = {Result.fixture=f; score=getRndScore()}
-        fixtures |> List.map(fun f -> generateResult f)
-
-    let fixtures = buildFixtureList teamsList gameWeeksList
-    let predictions = buildPredictionsList fixtures playersList
-    let results = buildResults fixtures
 
