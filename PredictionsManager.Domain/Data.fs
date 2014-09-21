@@ -20,32 +20,29 @@ module Data =
         cmd.ExecuteNonQuery() |> ignore
         cn.Close()
 
+    // writing
+    
     let insertGameWeekQuery (g:GameWeek) = sprintf "insert into gameweeks values ('%s', %i, '%s', '%s')" (getGwId g.id) (getGameWeekNo g.number) g.description ((getDeadline g.deadline).ToString())
     let insertFixtureQuery (f:Fixture) = sprintf "insert into fixtures values ('%s', '%s', '%s', '%s')" (getFxId f.id) (getGwId f.gameWeek.id) f.home f.away
     let insertResultQuery (r:Result) = sprintf "insert into results values ('%s', %i, %i)" (getFxId r.fixture.id) (fst r.score) (snd r.score)
     let insertPredictionQuery (p:Prediction) = sprintf "insert into predictions values ('%s', %i, %i, '%s')" (getFxId p.fixture.id) (fst p.score) (snd p.score) (getPlayerName p.player)
     
+    let addGameWeek g = insertGameWeekQuery g |> executeNonQuery
+    let addFixture f = insertFixtureQuery f |> executeNonQuery
+    let addResult r = insertResultQuery r |> executeNonQuery
+    let addPrediction p = insertPredictionQuery p |> executeNonQuery
+
     // initialising
-    
-    let executeNonQueryBatch list =
-        list |> List.iter(fun nq -> executeNonQuery nq)
 
     let initAll (g:GameWeek list) (f:Fixture list) (r:Result list) (p:Prediction list) =
         executeNonQuery "drop table if exists gameweeks; create table gameweeks (id uuid, number int, description text, deadline timestamp)"
         executeNonQuery "drop table if exists fixtures; create table fixtures (id uuid, gameWeekid uuid, home text, away text)"
         executeNonQuery "drop table if exists results; create table results (fixtureId uuid, homeScore int, awayScore int)"
         executeNonQuery "drop table if exists predictions; create table predictions (fixtureId uuid, homeScore int, awayScore int, player text)" 
-        g |> List.map(insertGameWeekQuery) |> executeNonQueryBatch
-        f |> List.map(insertFixtureQuery) |> executeNonQueryBatch
-        r |> List.map(insertResultQuery) |> executeNonQueryBatch
-        p |> List.map(insertPredictionQuery) |> executeNonQueryBatch
-
-    // writing
-    
-    let addGameWeek g = insertGameWeekQuery g |> executeNonQuery
-    let addFixture f = insertFixtureQuery f |> executeNonQuery
-    let addResult r = insertResultQuery r |> executeNonQuery
-    let addPrediction p = insertPredictionQuery p |> executeNonQuery
+        g |> List.iter(addGameWeek)
+        f |> List.iter(addFixture)
+        r |> List.iter(addResult)
+        p |> List.iter(addPrediction)
 
     // reading
     
