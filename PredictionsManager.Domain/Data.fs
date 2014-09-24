@@ -106,10 +106,11 @@ module Data =
     
 
 module DummyData =
-        
+
     let rnd = new System.Random()
-    let teamsList = [ "Arsenal"; "Chelsea"; "Liverpool"; "Everton"; "WestHam"; "Qpr" ]
-    let playersList = [ for p in [ "bob"; "jim"; "tom"; "ian"; "ron"; "jon" ] -> p|>Player ]
+    let teamsList = [ "Arsenal"; "Chelsea"; "Liverpool"; "Everton"; "WestHam"; "Qpr"; "Man Utd"; "Man City"; "Newcastle"; "Sunderland";
+                        "Stoke"; "Leicester"; "Spurs"; "Aston Villa"; "West Brom"; "Crystal Palace"; "Hull"; "Burnley"; "Southampton"; "Swansea" ]
+    let playersList = [ for p in [ "bob"; "jim"; "tom"; "ian"; "ron"; "jon"; "tim"; "rob"; "len";  ] -> p|>Player ]
     let gameWeeksList = [ for i in 1..38 -> { GameWeek.id=Guid.NewGuid()|>GwId; number=(GwNo i); description=""; deadline="2014-1-1"|>dl } ]
 
     let getTwoDifferentRndTeams (teams:string list) =
