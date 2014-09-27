@@ -34,4 +34,18 @@ module Presentation =
         printfn ""
 
     let getGameWeeks() =
-        Data.readGameWeeks()
+        Data.readGameWeeks() |> List.sortBy(fun gw -> gw.number)
+
+    let getLeagueTableRows() =
+        let resultsAndPredictions = Data.getResultsAndPredictions()
+        getLeagueTable (snd resultsAndPredictions) (fst resultsAndPredictions)
+
+    let getGameWeeksScoreForPlayer player =
+        let resultsAndPredictions = Data.getResultsAndPredictions()
+        getAllGameWeekPointsForPlayer (snd resultsAndPredictions) (fst resultsAndPredictions) (player|>Player)
+
+    let getPlayerGameWeekScore player gameWeekNo =
+        let resultsAndPredictions = Data.getResultsAndPredictions()
+        getGameWeekDetailsForPlayer (snd resultsAndPredictions) (fst resultsAndPredictions) (player|>Player) (gameWeekNo|>GwNo)
+
+        

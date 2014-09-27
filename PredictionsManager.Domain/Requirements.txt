@@ -9,7 +9,7 @@ players are scored on the accuracy of their predictions
 
 admin can add a gameweek with a deadline
 admin can add fixtures to a gameweek before submitting
-if gameweek must be changed after submitted any submitted player scores must be dropped
+if gameweek must be changed after submitting any submitted player scores must be dropped
 players can work on open fixtures up until deadline
 admin can submit fixture results at any time
 players can review their score for previous gameweeks

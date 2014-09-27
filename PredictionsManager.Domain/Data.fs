@@ -103,7 +103,12 @@ module Data =
         (executeQuery "select * from predictions" readerToPredictionDto)
         |> List.map(fun r -> { Prediction.fixture=(findFixtureById fixtures (r.fixtureId|>FxId)); score=(r.homeScore, r.awayScore); player=r.player|>Player })
     
-    
+    let getResultsAndPredictions() =
+        let gameWeeks = readGameWeeks()
+        let fixtures = readFixtures(gameWeeks)
+        let results = readResults(fixtures)
+        let predictions = readPredictions(fixtures)
+        results, predictions
 
 module DummyData =
 
