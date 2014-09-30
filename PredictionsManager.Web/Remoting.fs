@@ -1,6 +1,8 @@
 namespace PredictionsManager.Web
 
 open IntelliFactory.WebSharper
+open PredictionsManager.Domain.Domain
+open PredictionsManager.Domain.Presentation
 
 module Remoting =
 
@@ -9,3 +11,6 @@ module Remoting =
         async {
             return "You said: " + input
         }
+
+    [<Remote>]
+    let getLT() = async { return getLeagueTableRows() }

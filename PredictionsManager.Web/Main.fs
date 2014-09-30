@@ -5,12 +5,12 @@ open IntelliFactory.WebSharper
 open IntelliFactory.WebSharper.Sitelets
 open PredictionsManager.Domain.Domain
 open PredictionsManager.Domain.Presentation
+//open PredictionsManager.Web.JQueryMobile
 
 type Action =
-    | Home
-    | About
-    | GameWeeks of int option
     | LeagueTable
+    | GameWeeks of int option
+    | AddGameWeek
     | Player of string
     | PlayerGameWeekScore of string * int
 
@@ -56,26 +56,9 @@ module Site =
 
     let Links (ctx: Context<Action>) =
         UL [
-            LI ["Home" => ctx.Link Home]
-            LI ["About" => ctx.Link About]
             LI ["Gameweeks" => ctx.Link (GameWeeks<|None)]
             LI ["LeagueTable" => ctx.Link LeagueTable]
         ]
-
-    let HomePage =
-        Skin.WithTemplate "HomePage" <| fun ctx ->
-            [
-                Div [Text "HOME"]
-                Div [new Controls.EntryPoint()]
-                Links ctx
-            ]
-
-    let AboutPage =
-        Skin.WithTemplate "AboutPage" <| fun ctx ->
-            [
-                Div [Text "ABOUT"]
-                Links ctx
-            ]
 
     let AllGameWeeksPage =
         Skin.WithTemplate "Gws" <| fun ctx ->
@@ -86,7 +69,7 @@ module Site =
                                         let gwStr = gwInt.ToString()
                                         LI [ gwStr => ctx.Link (GameWeeks<|Some gwInt) ])
                 |> UL
-                Div [Text "Add a gw"]
+                Div ["Add Gameweek" => ctx.Link AddGameWeek]
                 Links ctx
             ]
 
@@ -105,22 +88,36 @@ module Site =
 
     let LeagueTablePage =
         Skin.WithTemplate "League Table" <| fun ctx ->
+//            let head = TR[ TD []; TD [Text "Player"]; TD [Text "Points"] ]
+//            let body = getLeagueTableRows()
+//                        |> List.map(fun row -> let playerName = (getPlayerName row.player)
+//                                               TR[
+//                                                   TD[ Text (str row.position) ]
+//                                                   TD[ playerName => ctx.Link (Player playerName) ]
+//                                                   TD[ Text (str row.points) ]
+//                                               ])
+//            let combined = List.concat [ [head]; body]
             [
                 H1 [Text "League Table"]
-                getLeagueTableRows()
-                |> List.map(fun row -> let playerName = (getPlayerName row.player)
-                                       TR[
-                                           TD[ Text (str row.position) ]
-                                           TD[ playerName => ctx.Link (Player playerName) ]
-                                           TD[ Text (str row.points) ]
-                                       ])
-                |> Table
-                Links ctx
+                Div [HTML5.Data "role" "page"; Id "dummy"]
+                Div [new JQueryMobileViewer()]
+                //Table combined
+                //Links ctx
             ]
+//        PageContent <| fun context ->
+//            let a = new JQueryMobileViewer()
+//            let b = Div[a]
+//            {Page.Default with
+//                Title = Some "Index"
+//                Body = [b] }
+//                    let time = System.DateTime.Now.ToString()
+//                    [H1 [Text <| "Current time: " + time]]
+                    //}
+            
 
     let PlayerPage player =
         Skin.WithTemplate player <| fun ctx ->
-            let gameWeeksAndPoints = getGameWeeksScoreForPlayer player
+            let gameWeeksAndPoints = getGameWeeksPointsForPlayer player
             [
                 H1[Text player]
                 gameWeeksAndPoints
@@ -149,35 +146,43 @@ module Site =
                     TD[Text (getPredictionDescription row.prediction)]
                     TD[Text (str row.points)]
                 ]
-
             let head = TR[ TD [Text "Fixture"]; TD [Text "Result"]; TD [Text "Prediction"]; TD [Text "Points"] ]
             let body = playerScoreForGameWeek |> List.map(gameWeekDetailsToHtml)
             let foot = TR[ TD[]; TD[]; TD[]; TD[Text (str (playerScoreForGameWeek|>List.sumBy(fun x->x.points))) ] ]
             let combined = List.concat[ [head]; body; [foot] ]
-             
             [
                 H1[Text (player + " score for GameWeek " + str gwno)]
                 Table combined
                 Links ctx
             ]
 
+    let AddGameWeekPage =
+        Skin.WithTemplate "Add Gameweek" <| fun ctx ->
+            [
+                H1 [Text "Add Gameweek"]
+                //Div [new Controls.EntryPoint()]
+                Div [new JQueryMobileViewer()]
+            ]
+
+
     let Main =
-        Sitelet.Sum [
-            Sitelet.Content "/" Home HomePage
-            Sitelet.Infer <| function
-                                | Home -> HomePage
-                                | About -> AboutPage
-                                | GameWeeks gwnoo -> ThirdWayPage gwnoo
-                                | LeagueTable -> LeagueTablePage
-                                | Player player -> PlayerPage player
-                                | PlayerGameWeekScore (player,gwno) -> PlayerGameWeekScorePage player gwno
-        ]
+        Sitelet.Content "/" LeagueTable LeagueTablePage
+
+//        Sitelet.Sum [
+//            Sitelet.Content "/" LeagueTable LeagueTablePage
+//            Sitelet.Infer <| function
+//                                | LeagueTable -> LeagueTablePage
+//                                | GameWeeks gwnoo -> ThirdWayPage gwnoo
+//                                | Player player -> PlayerPage player
+//                                | PlayerGameWeekScore (player,gwno) -> PlayerGameWeekScorePage player gwno
+//                                | AddGameWeek -> AddGameWeekPage
+//        ]
 
 [<Sealed>]
 type Website() =
     interface IWebsite<Action> with
         member this.Sitelet = Site.Main
-        member this.Actions = [Home; About; ]
+        member this.Actions = [LeagueTable]
 
 type Global() =
     inherit System.Web.HttpApplication()

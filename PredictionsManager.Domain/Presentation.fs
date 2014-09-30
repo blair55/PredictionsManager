@@ -20,7 +20,7 @@ module Presentation =
 
     let printGameWeekDetailsForPlayer (predictions:Prediction list) results player gameWeekNo =
         let gameWeekDetailsForPlayer = getGameWeekDetailsForPlayer predictions results (player|>Player) (gameWeekNo|>GwNo)
-        let printGameWeekDetailsRow row =
+        let printGameWeekDetailsRow (row:GameWeekDetailsRow) =
             let stringFixture (fixture:Fixture) = sprintf "%s v %s" fixture.home fixture.away
             let stringScore score = sprintf "%iv%i" (fst score) (snd score)
             let getPredictionDescription (prediction:Prediction option) =
@@ -37,15 +37,17 @@ module Presentation =
         Data.readGameWeeks() |> List.sortBy(fun gw -> gw.number)
 
     let getLeagueTableRows() =
-        let resultsAndPredictions = Data.getResultsAndPredictions()
-        getLeagueTable (snd resultsAndPredictions) (fst resultsAndPredictions)
+        let (results, predictions) = Data.getResultsAndPredictions()
+        getLeagueTable predictions results
 
-    let getGameWeeksScoreForPlayer player =
-        let resultsAndPredictions = Data.getResultsAndPredictions()
-        getAllGameWeekPointsForPlayer (snd resultsAndPredictions) (fst resultsAndPredictions) (player|>Player)
+    let getGameWeeksPointsForPlayer player =
+        let (results, predictions) = Data.getResultsAndPredictions()
+        getAllGameWeekPointsForPlayer predictions results (player|>Player)
 
-    let getPlayerGameWeekScore player gameWeekNo =
-        let resultsAndPredictions = Data.getResultsAndPredictions()
-        getGameWeekDetailsForPlayer (snd resultsAndPredictions) (fst resultsAndPredictions) (player|>Player) (gameWeekNo|>GwNo)
+    let getPlayerGameWeekPoints player gameWeekNo =
+        let (results, predictions) = Data.getResultsAndPredictions()
+        getGameWeekDetailsForPlayer predictions results (player|>Player) (gameWeekNo|>GwNo)
 
-        
+    let getFixtureDetail fxid =
+        let (results, predictions) = Data.getResultsAndPredictions()
+        getPlayerPredictionsForFixture predictions results (FxId fxid)
