@@ -31,7 +31,7 @@ angular
         templateUrl: 'views/leaguetable.html',
         controller: 'LeaguetableCtrl'
       })
-      .when('/player', {
+      .when('/player/:playerName', {
         templateUrl: 'views/player.html',
         controller: 'PlayerCtrl'
       })

@@ -8,10 +8,10 @@
  * Controller of the frontendApp
  */
 angular.module('frontendApp')
-  .controller('PlayerCtrl', function ($scope) {
-    $scope.awesomeThings = [
-      'HTML5 Boilerplate',
-      'AngularJS',
-      'Karma'
-    ];
+  .controller('PlayerCtrl', function ($scope, $http, $routeParams) {
+  	var url = '/api/player/' + $routeParams.playerName;
+    $http.get(url).success(function(data){
+    	$scope.model = data;
+    });
+  	$scope.playerName = $routeParams.playerName;
   });

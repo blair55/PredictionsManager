@@ -338,8 +338,9 @@ module.exports = function (grunt) {
       },
       exportDist: {
         expand: true,
+        dot: true,
         cwd: '<%= yeoman.dist %>',
-        dest: '/../../PredictionsManager.Api/',
+        dest: '<%= yeoman.exportDist %>',
         src: '**/*'
       }
     },
@@ -415,9 +416,9 @@ module.exports = function (grunt) {
   ]);
 
   grunt.registerTask('exportDist', [
-    //'build',
-    'clean:exportDist'
-    //'copy:exportDist'
+    'build',
+    'clean:exportDist',
+    'copy:exportDist'
   ]);
 
   grunt.registerTask('default', [
