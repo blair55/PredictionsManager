@@ -1,8 +1,9 @@
-<p>This is the leaguetable view.</p>
-<table class="table">
-	<tr ng-repeat="row in model.rows">
-		<td>{{row.position}}</td>
-		<td>{{row.player}}</td>
-		<td>{{row.points}}</td>
-	</tr>
-</table>
+
+<div class="list-group">
+	<div ng-repeat-start="row in model.rows"></div>
+	<a href="#/player/{{row.player}}" class="list-group-item">
+		<span>{{row.position}}. {{row.player}}</span>
+		<span class="badge">{{row.points}}</span>
+	</a>
+	<div ng-repeat-end></div>
+</div>

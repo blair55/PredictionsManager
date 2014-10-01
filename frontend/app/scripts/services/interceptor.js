@@ -12,17 +12,13 @@ angular.module('frontendApp')
       return {
           'request': function(config) {
 
-            console.log("before:" + config.url);
             var isApiRequest = config.url.indexOf('/api') >= 0;
             
             if(isApiRequest)
             {
               var newUrl = "http://localhost:48213" + config.url;
-              console.log("newUrl: " + newUrl);
               config.url = newUrl;
             }
-
-            console.log("after:" + config.url);
 
             return config;
           }

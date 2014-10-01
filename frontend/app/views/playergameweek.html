@@ -1,9 +1,20 @@
-<p>This is the playergameweek view.</p>
 <span>Player name: {{playerName}}</span>
 <span>GameWeek: {{gameWeekNo}}</span>
-<ul>
-	<li ng-repeat="row in model.rows">
-		<span>home: {{row.fixture.home}}</span> v
-		<span>home: {{row.fixture.away}}</span>
-	</li>
-</ul>
+<span>Total: {{model.totalPoints}}</span>
+
+<div class="list-group">
+	<div ng-repeat-start="row in model.rows"></div>
+	<div class="list-group-item">
+		<span class="badge">{{row.points}}</span>
+		<div>
+			<span>{{row.fixture.home}}</span> v <span>{{row.fixture.away}}</span>
+		</div>
+		<div class="small">
+			Result <span>{{row.result.away}}</span> v <span>{{row.result.away}}</span>
+		</div>
+		<div class="small">
+			Prediction <span>{{row.prediction.away}}</span> v <span>{{row.prediction.away}}</span>
+		</div>
+	</div>
+	<div ng-repeat-end></div>
+</div>
