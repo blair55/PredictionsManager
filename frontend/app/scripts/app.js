@@ -35,6 +35,10 @@ angular
         templateUrl: 'views/player.html',
         controller: 'PlayerCtrl'
       })
+      .when('/playergameweek/:playerName/:gameWeekNo', {
+        templateUrl: 'views/playergameweek.html',
+        controller: 'PlayergameweekCtrl'
+      })
       .otherwise({
         redirectTo: '/'
       });

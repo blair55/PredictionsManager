@@ -6,11 +6,12 @@ open System.Net.Http
 open System.Web
 open System.Web.Http
 open System.Web.Routing
-
+open System.Web.Http.Cors
 open PredictionsManager.Api.ViewModels
 open PredictionsManager.Domain.Domain
 open PredictionsManager.Domain.Presentation
-        
+
+[<EnableCors("*", "*", "*")>]
 type LeagueTableController() =
     inherit ApiController()
     
@@ -18,6 +19,7 @@ type LeagueTableController() =
         let rows = getLeagueTableRows() |> List.map(fun r -> { LeagueTableRowViewModel.position=r.position; player=str<|(getPlayerName r.player); points=r.points })
         { LeagueTableViewModel.rows=rows }
 
+[<EnableCors("*", "*", "*")>]
 type PlayerController() =
     inherit ApiController()
 

@@ -17,6 +17,8 @@ type Global() =
         
         config.MapHttpAttributeRoutes()
         
+        config.EnableCors()
+
         config.Routes.MapHttpRoute(
             "PlayerGameWeekApi",
             "api/Player/{player}/{gameWeekNo}",

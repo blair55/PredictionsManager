@@ -1,0 +1,9 @@
+<p>This is the playergameweek view.</p>
+<span>Player name: {{playerName}}</span>
+<span>GameWeek: {{gameWeekNo}}</span>
+<ul>
+	<li ng-repeat="row in model.rows">
+		<span>home: {{row.fixture.home}}</span> v
+		<span>home: {{row.fixture.away}}</span>
+	</li>
+</ul>

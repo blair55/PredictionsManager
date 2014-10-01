@@ -1,0 +1,18 @@
+'use strict';
+
+/**
+ * @ngdoc function
+ * @name frontendApp.controller:PlayergameweekCtrl
+ * @description
+ * # PlayergameweekCtrl
+ * Controller of the frontendApp
+ */
+angular.module('frontendApp')
+  .controller('PlayergameweekCtrl', function ($scope, $http, $routeParams) {
+	var url = '/api/player/' + $routeParams.playerName + '/' + $routeParams.gameWeekNo;
+	    $http.get(url).success(function(data){
+	    	$scope.model = data;
+	    });
+	  	$scope.playerName = $routeParams.playerName;
+	  	$scope.gameWeekNo = $routeParams.gameWeekNo;
+  });
