@@ -140,6 +140,11 @@ module Data =
         | Some n -> n+1
         | None -> 1
 
+    let getGameWeeksAndFixtures() =
+        let gameWeeks = readGameWeeks()
+        let fixtures = readFixtures gameWeeks
+        gameWeeks, fixtures
+
 module DummyData =
 
     let rnd = new System.Random()

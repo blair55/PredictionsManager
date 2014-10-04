@@ -118,4 +118,20 @@ module Domain =
         let fixturePredictions = predictions |> List.filter(fun p -> p.fixture.id = fxid)
         { fixture=fixture; result = fixtureResult; predictions=fixturePredictions }
 
+    let isFixtureOpen f =
+        let d = new DateTimeOffset(DateTime.Now)
+        let b = f.kickoff > d
+        b
 
+    let getOpenGameWeeks (gameWeeks:GameWeek list) (fixtures:Fixture list) =
+        fixtures
+        |> List.filter(isFixtureOpen)
+        |> List.map(fun f -> f.gameWeek)
+        |> Seq.distinctBy(fun gw -> gw)
+        |> Seq.sortBy(fun gw -> getGameWeekNo gw.number)
+        |> Seq.toList
+
+    let getOpenFixturesForGameWeek (fixtures:Fixture list) (gwNo:GwNo) =
+        fixtures
+        |> List.filter(fun f -> f.gameWeek.number = gwNo)
+        |> List.filter(isFixtureOpen)

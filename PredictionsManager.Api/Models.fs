@@ -6,6 +6,7 @@ open PredictionsManager.Domain.Domain
 open PredictionsManager.Domain.Data
 open Newtonsoft.Json
 
+[<AutoOpen>]
 module ViewModels =
     
     [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
@@ -35,7 +36,15 @@ module ViewModels =
     [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
     type GameWeekDetailsViewModel = { gameWeekNo:int; totalPoints:int; rows:GameWeekDetailsRowViewModel list }
 
+    [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
+    type OpenGameWeeksViewModel = { rows: int list }
+    
+    [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
+    type OpenFixturesViewModel = { rows: FixtureViewModel list }
+
     let getPlayerViewModel (p:Player) = { id=getPlayerId p.id|>str; name=p.name; isAdmin=(p.role=Admin) } 
+
+    let toFixtureViewModel (f:Fixture) = {home=f.home; away=f.away; fxId=(getFxId (f.id)).ToString(); kickoff=f.kickoff }
 
 [<AutoOpen>]
 module PostModels =
@@ -79,10 +88,21 @@ module Services =
     // try save fixtures
 
     let saveGameWeekPostModel (gwpm:PostModels.GameWeekPostModel) =
-        let newGameWeekId = Guid.NewGuid()|>GwId;
-        
+        let newGameWeekId = Guid.NewGuid()|>GwId;        
         newGameWeekId |> (switch (createGameWeekFromPostModel gwpm)
                         >> bind checkGameWeekNo
                         >> bind tryToSaveGameWeek
                         >> bind (switch (createFixtures gwpm))
                         >> bind tryToSaveFixtures)
+
+    let getOpenGameWeeks() =
+        let (gameWeeks, fixtures) = getGameWeeksAndFixtures()
+        let rows = (getOpenGameWeeks gameWeeks fixtures) |> List.map(fun gw -> getGameWeekNo gw.number)
+        { OpenGameWeeksViewModel.rows=rows }
+
+    let getOpenFixtures gwno =
+        let gameWeekNo = GwNo gwno
+        let (_, fixtures) = getGameWeeksAndFixtures()
+        let rows = getOpenFixturesForGameWeek fixtures gameWeekNo |> List.map(toFixtureViewModel)
+        { OpenFixturesViewModel.rows=rows }
+        

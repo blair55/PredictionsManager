@@ -110,7 +110,7 @@ type HomeController() =
                 | Some p -> { ScoreViewModel.home=fst p.score;away=snd p.score }
                 | None -> { ScoreViewModel.home=0;away=0 }
             {
-                GameWeekDetailsRowViewModel.fixture={home=d.fixture.home; away=d.fixture.away; fxId=(getFxId (d.fixture.id)).ToString(); kickoff=d.fixture.kickoff }
+                GameWeekDetailsRowViewModel.fixture=(toFixtureViewModel d.fixture)
                 predictionSubmitted=d.prediction.IsSome
                 prediction=getVmPred d.prediction
                 result={home=fst d.result.score; away=snd d.result.score}
@@ -119,6 +119,13 @@ type HomeController() =
         let rows = gameWeekDetailRows |> List.map(rowToViewModel)
         { GameWeekDetailsViewModel.gameWeekNo=gameWeekNo; totalPoints=rows|>List.sumBy(fun r -> r.points); rows=rows }
         
+    [<Route("opengameweeks")>]
+    member this.GetOpenGameWeeks () =
+        Services.getOpenGameWeeks()
+
+    [<Route("openfixtures/{gameWeekNo:int}")>]
+    member this.GetOpenFixtures (gameWeekNo:int) =
+        Services.getOpenFixtures gameWeekNo
 
 [<EnableCors("*", "*", "*")>]
 [<RoutePrefix("api/admin")>]

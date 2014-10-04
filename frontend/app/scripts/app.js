@@ -45,6 +45,14 @@ angular
         templateUrl: 'views/adminaddgameweek.html',
         controller: 'AdminaddgameweekCtrl'
       })
+      .when('/opengameweeks', {
+        templateUrl: 'views/opengameweeks.html',
+        controller: 'OpengameweeksCtrl'
+      })
+      .when('/openfixtures/:gameWeekNo', {
+        templateUrl: 'views/openfixtures.html',
+        controller: 'OpenfixturesCtrl'
+      })
       .otherwise({
         redirectTo: '/'
       });
