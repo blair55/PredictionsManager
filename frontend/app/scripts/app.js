@@ -25,10 +25,6 @@ angular
         templateUrl: 'views/main.html',
         controller: 'MainCtrl'
       })
-      .when('/about', {
-        templateUrl: 'views/about.html',
-        controller: 'AboutCtrl'
-      })
       .when('/leaguetable', {
         templateUrl: 'views/leaguetable.html',
         controller: 'LeaguetableCtrl'
@@ -41,17 +37,17 @@ angular
         templateUrl: 'views/playergameweek.html',
         controller: 'PlayergameweekCtrl'
       })
+      .when('/openfixtures', {
+        templateUrl: 'views/openfixtures.html',
+        controller: 'OpenfixturesCtrl'
+      })
       .when('/admin/addgameweek', {
         templateUrl: 'views/adminaddgameweek.html',
         controller: 'AdminaddgameweekCtrl'
       })
-      .when('/opengameweeks', {
-        templateUrl: 'views/opengameweeks.html',
-        controller: 'OpengameweeksCtrl'
-      })
-      .when('/openfixtures/:gameWeekNo', {
-        templateUrl: 'views/openfixtures.html',
-        controller: 'OpenfixturesCtrl'
+      .when('/admin/addresults', {
+        templateUrl: 'views/adminaddresults.html',
+        controller: 'AdminaddresultsCtrl'
       })
       .otherwise({
         redirectTo: '/'

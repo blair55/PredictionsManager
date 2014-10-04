@@ -28,7 +28,7 @@ module ViewModels =
     type ScoreViewModel = { home:int; away:int; }
     
     [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
-    type FixtureViewModel = { home:string; away:string; fxId:string; kickoff:DateTimeOffset }
+    type FixtureViewModel = { home:string; away:string; fxId:string; kickoff:DateTimeOffset; gameWeekNumber:int }
     
     [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
     type GameWeekDetailsRowViewModel = { fixture:FixtureViewModel; predictionSubmitted:bool; prediction:ScoreViewModel; result:ScoreViewModel; points:int }
@@ -42,9 +42,12 @@ module ViewModels =
     [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
     type OpenFixturesViewModel = { rows: FixtureViewModel list }
 
+    [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
+    type FixturesAwaitingResultsViewModel = { rows: FixtureViewModel list }
+
     let getPlayerViewModel (p:Player) = { id=getPlayerId p.id|>str; name=p.name; isAdmin=(p.role=Admin) } 
 
-    let toFixtureViewModel (f:Fixture) = {home=f.home; away=f.away; fxId=(getFxId (f.id)).ToString(); kickoff=f.kickoff }
+    let toFixtureViewModel (f:Fixture) = {home=f.home; away=f.away; fxId=(getFxId f.id)|>str; kickoff=f.kickoff; gameWeekNumber=(getGameWeekNo f.gameWeek.number) }
 
 [<AutoOpen>]
 module PostModels =
@@ -55,7 +58,11 @@ module PostModels =
     [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
     type GameWeekPostModel = { number:int; fixtures:FixturePostModel list }
 
-
+    [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
+    type ResultPostModel = { fixtureId:string; score:ScoreViewModel }
+    
+    [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
+    type PredictionPostModel = { fixtureId:string; score:ScoreViewModel }
 
 module Services =
     
@@ -95,14 +102,32 @@ module Services =
                         >> bind (switch (createFixtures gwpm))
                         >> bind tryToSaveFixtures)
 
-    let getOpenGameWeeks() =
-        let (gameWeeks, fixtures) = getGameWeeksAndFixtures()
-        let rows = (getOpenGameWeeks gameWeeks fixtures) |> List.map(fun gw -> getGameWeekNo gw.number)
-        { OpenGameWeeksViewModel.rows=rows }
-
-    let getOpenFixtures gwno =
-        let gameWeekNo = GwNo gwno
+    let getOpenFixtures (playerId:string) =
+        let plId = PlId (sToGuid playerId)
         let (_, fixtures) = getGameWeeksAndFixtures()
-        let rows = getOpenFixturesForGameWeek fixtures gameWeekNo |> List.map(toFixtureViewModel)
+        let (players, _, predictions) = getPlayersAndResultsAndPredictions()
+        let rows = (getOpenFixturesForPlayer predictions fixtures players plId) |> List.map(toFixtureViewModel)
         { OpenFixturesViewModel.rows=rows }
+        
+    let getFixturesAwaitingResults() =
+        let (_, fixtures, results) = getGameWeeksAndFixturesAndResults()
+        let rows = getFixturesAwaitingResults fixtures results |> List.map(toFixtureViewModel)
+        { FixturesAwaitingResultsViewModel.rows = rows }
+
+    let saveResultPostModel (rpm:ResultPostModel) =
+        let fxId = FxId (sToGuid rpm.fixtureId)
+        let (_, fixtures) = getGameWeeksAndFixtures()
+        let fixture = findFixtureById fixtures fxId
+        let result = { Result.fixture=fixture; score=(rpm.score.home,rpm.score.away)  }
+        addResult result
+
+    let savePredictionPostModel (ppm:PredictionPostModel) (playerId:string) =
+        let plId = PlId (sToGuid playerId)
+        let fxId = FxId (sToGuid ppm.fixtureId)
+        let (_, fixtures) = getGameWeeksAndFixtures()
+        let players = getPlayers()
+        let fixture = findFixtureById fixtures fxId
+        let player = findPlayerById players plId
+        let prediction = { Prediction.fixture=fixture; player=player; score=(ppm.score.home,ppm.score.away) }
+        addPrediction prediction
         

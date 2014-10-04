@@ -123,15 +123,29 @@ module Domain =
         let b = f.kickoff > d
         b
 
-    let getOpenGameWeeks (gameWeeks:GameWeek list) (fixtures:Fixture list) =
-        fixtures
-        |> List.filter(isFixtureOpen)
-        |> List.map(fun f -> f.gameWeek)
-        |> Seq.distinctBy(fun gw -> gw)
-        |> Seq.sortBy(fun gw -> getGameWeekNo gw.number)
-        |> Seq.toList
+//    let getOpenGameWeeks (gameWeeks:GameWeek list) (fixtures:Fixture list) =
+//        fixtures
+//        |> List.filter(isFixtureOpen)
+//        |> List.map(fun f -> f.gameWeek)
+//        |> Seq.distinctBy(fun gw -> gw)
+//        |> Seq.sortBy(fun gw -> getGameWeekNo gw.number)
+//        |> Seq.toList
 
-    let getOpenFixturesForGameWeek (fixtures:Fixture list) (gwNo:GwNo) =
+    let getOpenFixturesForPlayer (predictions:Prediction list) (fixtures:Fixture list) (players:Player list) (plId:PlId) =
+        let player = findPlayerById players plId
+        let doesFixtureAlreadyHavePredictionFromPlayer (predictions:Prediction list) player fixture =
+            let predictionsForFixtureByPlayer =
+                predictions |> List.filter(fun p -> p.player = player) |> List.filter(fun p -> p.fixture = fixture)
+            (List.isEmpty predictionsForFixtureByPlayer) = false
         fixtures
-        |> List.filter(fun f -> f.gameWeek.number = gwNo)
         |> List.filter(isFixtureOpen)
+        |> List.filter(fun f -> (doesFixtureAlreadyHavePredictionFromPlayer predictions player f) = false)
+        |> List.sortBy(fun f -> f.gameWeek.number)
+
+    let getFixturesAwaitingResults (fixtures:Fixture list) (results:Result list) =
+        let hasFilterGotMatchingResult f =
+            let res = results |> List.tryFind(fun r -> r.fixture = f)
+            match res with | Some r -> true | None -> false
+        fixtures
+        |> List.filter(fun f -> isFixtureOpen f = false)
+        |> List.filter(fun f -> hasFilterGotMatchingResult f = false)

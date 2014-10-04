@@ -1,0 +1,31 @@
+
+<form name="form" class="form-horizontal" role="form">
+
+	<div class="well">
+		<div class="form-group">
+			<span class="label label-default">GW #{{ row.gameWeekNumber }}</span>
+			<span class="label label-default">{{ row.kickoff | date:'EEE dd MMM HH:mm Z' }}</span>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-2 control-label">{{row.home}}</label>
+			<div class="col-sm-1">
+		  		<input type="number" class="form-control"ng-model="row.homeScore" required>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="col-sm-2 control-label">{{row.away}}</label>
+			<div class="col-sm-1">
+		  		<input type="number" class="form-control"ng-model="row.awayScore" required>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-sm-offset-2 col-sm-1">
+		  		<button type="submit" class="btn btn-default" ng-disabled="form.$invalid" ng-click="submitResult(row)">Submit</button>
+			</div>
+		</div>
+
+	</div>
+
+</form>

@@ -33,7 +33,7 @@ module Data =
     
     let insertPlayerQuery (p:PlayerDto) = sprintf "insert into players values ('%s', '%s', '%s', '%s')" (str p.id) p.name p.role p.email
     let insertGameWeekQuery (g:GameWeekDto) = sprintf "insert into gameweeks values ('%s', %i, '%s')" (str g.id) g.number g.description
-    let insertFixtureQuery (f:FixtureDto) = sprintf "insert into fixtures values ('%s', '%s', '%s', '%s', '%s')" (str f.id) (str f.gameWeekId) f.home f.away (f.kickoff.ToString())
+    let insertFixtureQuery (f:FixtureDto) = sprintf "insert into fixtures values ('%s', '%s', '%s', '%s', '%s')" (str f.id) (str f.gameWeekId) f.home f.away (str f.kickoff)
     let insertResultQuery (r:ResultDto) = sprintf "insert into results values ('%s', %i, %i)" (str r.fixtureId) (r.homeScore) (r.awayScore)
     let insertPredictionQuery (p:PredictionDto) = sprintf "insert into predictions values ('%s', %i, %i, '%s')" (str p.fixtureId) (p.homeScore) (p.awayScore) (str p.playerId)
     
@@ -144,6 +144,14 @@ module Data =
         let gameWeeks = readGameWeeks()
         let fixtures = readFixtures gameWeeks
         gameWeeks, fixtures
+
+    let getGameWeeksAndFixturesAndResults() =
+        let gameWeeks = readGameWeeks()
+        let fixtures = readFixtures gameWeeks
+        let results = readResults fixtures
+        gameWeeks, fixtures, results
+
+    let getPlayers() = readPlayers()
 
 module DummyData =
 

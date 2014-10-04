@@ -1,20 +1,15 @@
-
-<div>Gameweek # {{ gameweek.number }}</div>
+<h3>Add GameWeek #{{ gameweek.number }}</h3>
 
 <form ng-submit="submit" class="form-inline" role="form">
 
-<div ng-repeat="f in gameweek.fixtures">
+<div class="well" ng-repeat="f in gameweek.fixtures">
+
 	<div class="form-group">
 		<input ng-model="f.home" type="text" class="form-control" placeholder="home">
 	</div>
 	<div class="form-group">
-		<input class="form-control" type="email" placeholder="away">
+		<input ng-model="f.away" type="text" class="form-control" placeholder="away">
 	</div>
-<!-- 	<div class="form-group">
-		<input type="date" ng-model="f.kickoff.date" />
-		<select ng-model="f.kickoff.hour" ng-options="i for i in hours" ng-required></select>
-		<select ng-model="f.kickoff.min" ng-options="i for i in minutes" ng-required></select>
-	</div> -->
 
 	<div class="form-group">
 		<div class="dropdown">
@@ -29,6 +24,7 @@
 			</ul>
 		</div>
 	</div>
+
 	<div class="form-group" ng-show="$index > 0">
 		<button class="btn btn-default" ng-click="removeFixture($index)" title="remove">
 			<span class="glyphicon glyphicon-remove"></span>

@@ -37,8 +37,6 @@ type HomeController() =
         let r = new HttpResponseMessage(HttpStatusCode.Redirect)
         c.Expires <- new DateTimeOffset(july1025) |> nd
         c.Path <- "/"
-        //c.Domain <- "localhost:9000"
-        
         r.Headers.AddCookies([c])
         r.Headers.Location <- request.RequestUri.GetLeftPart(UriPartial.Authority)|>uri
         r
@@ -119,20 +117,29 @@ type HomeController() =
         let rows = gameWeekDetailRows |> List.map(rowToViewModel)
         { GameWeekDetailsViewModel.gameWeekNo=gameWeekNo; totalPoints=rows|>List.sumBy(fun r -> r.points); rows=rows }
         
-    [<Route("opengameweeks")>]
-    member this.GetOpenGameWeeks () =
-        Services.getOpenGameWeeks()
+    [<Route("openfixtures")>]
+    member this.GetOpenFixtures() =
+        let returnFixtures p =
+            let f = Services.getOpenFixtures p
+            getOkResponseWithBody f
+        let playerId = getPlayerIdCookie base.Request
+        match playerId with
+        | Success plId -> returnFixtures plId
+        | Failure s -> unauthorised s
 
-    [<Route("openfixtures/{gameWeekNo:int}")>]
-    member this.GetOpenFixtures (gameWeekNo:int) =
-        Services.getOpenFixtures gameWeekNo
+    [<Route("prediction")>][<HttpPost>]
+    member this.AddPrediction (prediction) =
+        let playerId = getPlayerIdCookie base.Request
+        match playerId with
+        | Success plId -> Services.savePredictionPostModel prediction plId; getOkResponseWithBody ""
+        | Failure s -> unauthorised s
+    
 
 [<EnableCors("*", "*", "*")>]
 [<RoutePrefix("api/admin")>]
 type AdminController() =
     inherit ApiController()
 
-    //getnewgameweekno
     [<Route("getnewgameweekno")>]
     member this.GetNewGameWeekNo () =
         getNewGameWeekNo()
@@ -144,4 +151,12 @@ type AdminController() =
         | Success _ -> new HttpResponseMessage(HttpStatusCode.OK)
         | Failure s -> new HttpResponseMessage(HttpStatusCode.InternalServerError)
         
+
+    [<Route("getfixturesawaitingresults")>]
+    member this.GetFixturesAwaitingResults() =
+        getFixturesAwaitingResults()
+
+    [<Route("result")>][<HttpPost>]
+    member this.AddResult (result:ResultPostModel) =
+        saveResultPostModel result
 
