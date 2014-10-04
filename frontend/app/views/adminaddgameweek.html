@@ -1,20 +1,44 @@
 
 <div>Gameweek # {{ gameweek.number }}</div>
 
-<form ng-submit="submit">
+<form ng-submit="submit" class="form-inline" role="form">
 
-<ul>
-	<li ng-repeat="f in gameweek.fixtures track by $index">
-		<input type="text" ng-model="f.home" /> v
-		<input type="text" ng-model="f.away" /> @
+<div ng-repeat="f in gameweek.fixtures">
+	<div class="form-group">
+		<input ng-model="f.home" type="text" class="form-control" placeholder="home">
+	</div>
+	<div class="form-group">
+		<input class="form-control" type="email" placeholder="away">
+	</div>
+<!-- 	<div class="form-group">
 		<input type="date" ng-model="f.kickoff.date" />
 		<select ng-model="f.kickoff.hour" ng-options="i for i in hours" ng-required></select>
 		<select ng-model="f.kickoff.min" ng-options="i for i in minutes" ng-required></select>
-		<button ng-show="$index > 0" ng-click="removeFixture($index)">Remove</button>
-	</li>
-</ul>
-<button ng-click="addFixture()">Add</button>
+	</div> -->
 
-<button ng-click="submit()">Submit</button>
+	<div class="form-group">
+		<div class="dropdown">
+			<a class="dropdown-toggle" role="button" data-toggle="dropdown" data-target="#">
+				<div class="input-group">
+					<input type="text" class="form-control" ng-model="f.kickoff">
+					<span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+				</div>
+			</a>
+			<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+				<datetimepicker ng-model="f.kickoff" />
+			</ul>
+		</div>
+	</div>
+	<div class="form-group" ng-show="$index > 0">
+		<button class="btn btn-default" ng-click="removeFixture($index)" title="remove">
+			<span class="glyphicon glyphicon-remove"></span>
+		</button>
+	</div>
+
+</div>
+
+
+<button ng-click="addFixture()" class="btn btn-default">Add</button>
+<button ng-click="submit()" class="btn btn-default">Submit</button>
 
 </form>

@@ -8,18 +8,22 @@
  * Factory in the frontendApp.
  */
 angular.module('frontendApp')
-  .factory('interceptor', function ($q) {
+  .factory('interceptor', function ($q, localStorageService) {
       return {
           'request': function(config) {
 
             var isApiRequest = config.url.indexOf('/api') >= 0;
-            
             if(isApiRequest)
             {
               var newUrl = "http://localhost:48213" + config.url;
               config.url = newUrl;
             }
 
+            // var player = localStorageService.get('player');
+            // if(player){
+            //   config.headers.playerId = player.Id;
+            // }
+            
             return config;
           }
 

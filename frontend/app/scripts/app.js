@@ -15,7 +15,9 @@ angular
     'ngResource',
     'ngRoute',
     'ngSanitize',
-    'ngTouch'
+    'ngTouch',
+    'LocalStorageModule',
+    'ui.bootstrap.datetimepicker'
   ])
   .config(function ($routeProvider) {
     $routeProvider

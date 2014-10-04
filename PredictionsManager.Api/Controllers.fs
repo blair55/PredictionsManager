@@ -37,6 +37,8 @@ type HomeController() =
         let r = new HttpResponseMessage(HttpStatusCode.Redirect)
         c.Expires <- new DateTimeOffset(july1025) |> nd
         c.Path <- "/"
+        //c.Domain <- "localhost:9000"
+        
         r.Headers.AddCookies([c])
         r.Headers.Location <- request.RequestUri.GetLeftPart(UriPartial.Authority)|>uri
         r

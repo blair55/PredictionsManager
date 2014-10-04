@@ -8,20 +8,20 @@
  * Controller of the frontendApp
  */
 angular.module('frontendApp')
-  .controller('AdminaddgameweekCtrl', function ($scope, $http) {
+  .controller('AdminaddgameweekCtrl', function ($scope, $http, localStorageService) {
 
   	$scope.hours = [12,13,14,15,16,17,18,19,20];
   	$scope.minutes = [];
-
+    $scope.date = {};
   	for(var i=0; i<60; i++){
   		if(i%5==0) $scope.minutes.push(i);
   	}
 
     $scope.gameweek = {
 		fixtures: [
-			{ home:"", away:"", kickoff: { date:"", hour:12, min:45 } },
-			{ home:"", away:"", kickoff: { date:"", hour:15, min:0 } },
-			{ home:"", away:"", kickoff: { date:"", hour:15, min:0 } }
+			{ home:"", away:"", kickoff: new Date() },
+			{ home:"", away:"", kickoff: new Date() },
+			{ home:"", away:"", kickoff: new Date() }
 		]
     };
 

@@ -21,9 +21,11 @@ module Common =
 
     let switch f x = f x |> Success
 
-    let tryTo x = 
+    let tryToWithReturn x = 
         try
-            x()
-            Success()
+            let r = x()
+            Success r
         with
             | :? (System.Exception) as ex -> Failure ex.Message
+
+

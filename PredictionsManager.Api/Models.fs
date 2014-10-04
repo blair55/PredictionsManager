@@ -41,10 +41,7 @@ module ViewModels =
 module PostModels =
 
     [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
-    type KickOffPostModel = { date:string; hour:int; minute:int }
-
-    [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
-    type FixturePostModel = { home:string; away:string; kickOff:KickOffPostModel }
+    type FixturePostModel = { home:string; away:string; kickOff:DateTime }
     
     [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
     type GameWeekPostModel = { number:int; fixtures:FixturePostModel list }
@@ -55,10 +52,6 @@ module Services =
     
     let getNewGameWeekNo() = getNewGameWeekNo()
         
-    let getDateTimeOffSetFromKickOff (ko:KickOffPostModel) =
-        let s = sprintf "%s %i:%i:00" ko.date ko.hour ko.minute
-        new DateTimeOffset(Convert.ToDateTime(s))
-
     // build gameweek from post model
     let createGameWeekFromPostModel (gwpm:GameWeekPostModel) (gwid:GwId) =
         { GameWeek.id=gwid; number=(GwNo gwpm.number); description="" }
@@ -70,21 +63,26 @@ module Services =
 
     // build fixtures
     let createFixtures (gwpm:GameWeekPostModel) (gw:GameWeek) =
-        gwpm.fixtures |> List.map(fun f -> { Fixture.id=Guid.NewGuid()|>FxId; gameWeek=gw; home=f.home; away=f.away; kickoff=(getDateTimeOffSetFromKickOff f.kickOff) } )
+        gwpm.fixtures |> List.map(fun f -> { Fixture.id=Guid.NewGuid()|>FxId; gameWeek=gw; home=f.home; away=f.away; kickoff=(new DateTimeOffset(f.kickOff)) } )
 
     // try save gameweek
     let tryToSaveGameWeek gw =
-        let addGw() = addGameWeek gw
-        tryTo addGw
+        let addGw() = addGameWeek gw; gw
+        tryToWithReturn addGw
 
     let tryToSaveFixtures fixtures =
-        fixtures |> List.iter(fun f -> addFixture f)
+        let addFixtures() =
+            fixtures |> List.iter(fun f -> addFixture f)
+            ()
+        tryToWithReturn addFixtures
 
     // try save fixtures
 
     let saveGameWeekPostModel (gwpm:PostModels.GameWeekPostModel) =
         let newGameWeekId = Guid.NewGuid()|>GwId;
-          
-        newGameWeekId |> (createGameWeekFromPostModel gwpm
-                        >> checkGameWeekNo
-                        >> bind tryToSaveGameWeek)
+        
+        newGameWeekId |> (switch (createGameWeekFromPostModel gwpm)
+                        >> bind checkGameWeekNo
+                        >> bind tryToSaveGameWeek
+                        >> bind (switch (createFixtures gwpm))
+                        >> bind tryToSaveFixtures)
