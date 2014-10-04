@@ -1,0 +1,20 @@
+
+<div>Gameweek # {{ gameweek.number }}</div>
+
+<form ng-submit="submit">
+
+<ul>
+	<li ng-repeat="f in gameweek.fixtures track by $index">
+		<input type="text" ng-model="f.home" /> v
+		<input type="text" ng-model="f.away" /> @
+		<input type="date" ng-model="f.kickoff.date" />
+		<select ng-model="f.kickoff.hour" ng-options="i for i in hours" ng-required></select>
+		<select ng-model="f.kickoff.min" ng-options="i for i in minutes" ng-required></select>
+		<button ng-show="$index > 0" ng-click="removeFixture($index)">Remove</button>
+	</li>
+</ul>
+<button ng-click="addFixture()">Add</button>
+
+<button ng-click="submit()">Submit</button>
+
+</form>

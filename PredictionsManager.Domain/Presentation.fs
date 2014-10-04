@@ -1,5 +1,6 @@
 ﻿namespace PredictionsManager.Domain
 
+open System
 open PredictionsManager.Domain.Domain
 open PredictionsManager.Domain.Data
 
@@ -8,18 +9,18 @@ module Presentation =
     let printLeagueTable (predictions:Prediction list) results =
         let leagueTable = getLeagueTable predictions results        
         let printLeagueTableRow (row:LeagueTableRow) =
-            printfn "%i. %s - %i" row.position (getPlayerName row.player) row.points
+            printfn "%i. %s - %i" row.position (row.player.name) row.points
         leagueTable |> List.iter(printLeagueTableRow)
 
-    let printGameWeeksScoreForPlayer (predictions:Prediction list) results player =
-        let gws = getAllGameWeekPointsForPlayer predictions results (player|>Player)
+    let printGameWeeksScoreForPlayer players (predictions:Prediction list) results playerId =
+        let gws = getAllGameWeekPointsForPlayer players predictions results playerId
         let printGameWeekScore gws =
             let gameWeekNo = getGameWeekNo (fst gws)
             printfn "%i - %i" gameWeekNo (snd gws)
         gws |> List.iter printGameWeekScore
 
-    let printGameWeekDetailsForPlayer (predictions:Prediction list) results player gameWeekNo =
-        let gameWeekDetailsForPlayer = getGameWeekDetailsForPlayer predictions results (player|>Player) (gameWeekNo|>GwNo)
+    let printGameWeekDetailsForPlayer (predictions:Prediction list) results playerId gameWeekNo =
+        let gameWeekDetailsForPlayer = getGameWeekDetailsForPlayer predictions results playerId (gameWeekNo|>GwNo)
         let printGameWeekDetailsRow (row:GameWeekDetailsRow) =
             let stringFixture (fixture:Fixture) = sprintf "%s v %s" fixture.home fixture.away
             let stringScore score = sprintf "%iv%i" (fst score) (snd score)
@@ -33,21 +34,30 @@ module Presentation =
         printfn "Total %i" (gameWeekDetailsForPlayer |> List.sumBy(fun gwd -> gwd.points))
         printfn ""
 
+
+    let getPlayer playerId =
+        Data.getPlayerById (playerId|>PlId)
+
     let getGameWeeks() =
         Data.readGameWeeks() |> List.sortBy(fun gw -> gw.number)
 
     let getLeagueTableRows() =
-        let (results, predictions) = Data.getResultsAndPredictions()
+        let (_, results, predictions) = Data.getPlayersAndResultsAndPredictions()
         getLeagueTable predictions results
 
-    let getGameWeeksPointsForPlayer player =
-        let (results, predictions) = Data.getResultsAndPredictions()
-        getAllGameWeekPointsForPlayer predictions results (player|>Player)
+    let getGameWeeksPointsForPlayer playerId =
+        let (players, results, predictions) = Data.getPlayersAndResultsAndPredictions()
+        getAllGameWeekPointsForPlayer players predictions results (playerId|>PlId)
 
-    let getPlayerGameWeekPoints player gameWeekNo =
-        let (results, predictions) = Data.getResultsAndPredictions()
-        getGameWeekDetailsForPlayer predictions results (player|>Player) (gameWeekNo|>GwNo)
+    let getPlayerGameWeekPoints playerId gameWeekNo =
+        let (players, results, predictions) = Data.getPlayersAndResultsAndPredictions()
+        let player = findPlayerById players (playerId|>PlId)
+        getGameWeekDetailsForPlayer predictions results player (gameWeekNo|>GwNo)
 
     let getFixtureDetail fxid =
-        let (results, predictions) = Data.getResultsAndPredictions()
+        let (_, results, predictions) = Data.getPlayersAndResultsAndPredictions()
         getPlayerPredictionsForFixture predictions results (FxId fxid)
+
+
+
+    

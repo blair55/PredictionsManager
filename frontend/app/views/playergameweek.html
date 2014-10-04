@@ -1,7 +1,7 @@
 <span>Player name: {{playerName}}</span>
 <span>GameWeek: {{gameWeekNo}}</span>
 <span>Total: {{model.totalPoints}}</span>
-
+<p>{{$rootScope.oauth.access_token}}</p>
 <div class="list-group">
 	<div ng-repeat-start="row in model.rows"></div>
 	<div class="list-group-item">
@@ -10,10 +10,10 @@
 			<span>{{row.fixture.home}}</span> v <span>{{row.fixture.away}}</span>
 		</div>
 		<div class="small">
-			Result <span>{{row.result.away}}</span> v <span>{{row.result.away}}</span>
+			Result <span>{{row.result.home}}</span> v <span>{{row.result.away}}</span>
 		</div>
 		<div class="small">
-			Prediction <span>{{row.prediction.away}}</span> v <span>{{row.prediction.away}}</span>
+			Prediction <span>{{row.prediction.home}}</span> v <span>{{row.prediction.away}}</span>
 		</div>
 	</div>
 	<div ng-repeat-end></div>

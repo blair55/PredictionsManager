@@ -8,7 +8,7 @@
  * Factory in the frontendApp.
  */
 angular.module('frontendApp')
-  .factory('interceptor', function () {
+  .factory('interceptor', function ($q) {
       return {
           'request': function(config) {
 
@@ -39,15 +39,18 @@ angular.module('frontendApp')
          //    // do something on success
          //    return response;
          //  },
+          ,
+          // optional method
+         'responseError': function(rejection) {
+            // do something on error
+            console.log("something went wrong");
+            console.log(rejection);
 
-         //  // optional method
-         // 'responseError': function(rejection) {
-         //    // do something on error
-         //    if (canRecover(rejection)) {
-         //      return responseOrNewPromise
-         //    }
-         //    return $q.reject(rejection);
-         //  }
+            // if (canRecover(rejection)) {
+            //   return responseOrNewPromise
+            // }
+            return $q.reject(rejection);
+          }
         };
   });
 
