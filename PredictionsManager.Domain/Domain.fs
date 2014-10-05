@@ -9,7 +9,7 @@ module Domain =
     type PlId = PlId of Guid
     type PrId = PrId of Guid
     type Team = string
-    type KickOff = DateTimeOffset
+    type KickOff = DateTime
     type GwNo = GwNo of int
     type Role = User | Admin
 
@@ -29,6 +29,11 @@ module Domain =
     type Prediction = { fixture:Fixture; score:Score; player:Player }
     type Result = { fixture:Fixture; score:Score }
     type Outcome = HomeWin | AwayWin | Draw
+
+    let isPlayerAdmin (player:Player) =
+        match player.role with
+        | Admin -> true
+        | _ -> false
 
     // dtos / viewmodels
     type LeagueTableRow = { position:int; predictions:int; player:Player; points:int }
@@ -83,10 +88,8 @@ module Domain =
     let getLeagueTable (predictions:Prediction list) results =
         let playerScores = getAllPlayerScores predictions results
         playerScores
-        |> List.sortBy(fun ps -> let (_, _, score) = ps
-                                 -score)
-        |> List.mapi(fun i ps -> let (predictions, player, score) = ps
-                                 { position=(i+1); predictions=predictions; player=player; points=score })
+        |> List.sortBy(fun (_, _, score) -> -score)
+        |> List.mapi(fun i (predictions, player, score) -> { position=(i+1); predictions=predictions; player=player; points=score })
 
     let getGameWeekPointsForPlayer players (predictions:Prediction list) results playerId gameWeekNo =
         let player = findPlayerById players playerId
@@ -107,7 +110,7 @@ module Domain =
                 match prediction with
                 | Some p -> getPointsForPredictionComparedToResult p result
                 | None -> 0
-            {GameWeekDetailsRow.fixture=result.fixture; prediction=prediction; result=result; points=points }
+            { GameWeekDetailsRow.fixture=result.fixture; prediction=prediction; result=result; points=points }
         gameWeekResults
         |> List.map(fun r -> let prediction = playerGameWeekPredictions |> List.tryFind(fun p -> r.fixture = p.fixture )
                              getGameWeekDetailsRow prediction r)
@@ -119,7 +122,7 @@ module Domain =
         { fixture=fixture; result = fixtureResult; predictions=fixturePredictions }
 
     let isFixtureOpen f =
-        let d = new DateTimeOffset(DateTime.Now)
+        let d = DateTime.Now
         let b = f.kickoff > d
         b
 
@@ -149,3 +152,4 @@ module Domain =
         fixtures
         |> List.filter(fun f -> isFixtureOpen f = false)
         |> List.filter(fun f -> hasFilterGotMatchingResult f = false)
+

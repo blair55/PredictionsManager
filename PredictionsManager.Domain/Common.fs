@@ -21,11 +21,14 @@ module Common =
 
     let switch f x = f x |> Success
 
+    let log msg =
+        printfn "%s" msg
+        System.Diagnostics.Debug.WriteLine(msg)
+
     let tryToWithReturn x = 
         try
             let r = x()
             Success r
         with
             | :? (System.Exception) as ex -> Failure ex.Message
-
 

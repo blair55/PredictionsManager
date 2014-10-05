@@ -75,8 +75,29 @@ type HomeController() =
     let doLogin req result =
         match result with
         | Success player -> logPlayerIn req player
-        | Failure msg -> unauthorised msg
+        | Failure msg -> unauthorised msg 
 
+    let checkPlayerIsAdmin (player:PlayerViewModel) =
+        match player.isAdmin with
+        | true -> Success player
+        | false -> Failure "player not admin"
+
+    let makeSurePlayerIsAdmin req =
+        req |> (getPlayerIdCookie
+            >> bind convertStringToGuid
+            >> bind getPlayerFromGuid
+            >> bind checkPlayerIsAdmin)
+        
+    [<Route("prediction")>][<HttpPost>]
+    member this.AddPrediction (prediction) =
+        let handle r = match r with
+                        | Success _ -> getOkResponseWithBody ""
+                        | Failure s -> unauthorised s
+
+        base.Request |> (getPlayerIdCookie
+                        >> bind (trySavePredictionPostModel prediction)
+                        >> handle)
+        
     [<Route("whoami")>]
     member this.GetWhoAmI() =
         base.Request |> (getPlayerIdCookie
@@ -127,14 +148,7 @@ type HomeController() =
         | Success plId -> returnFixtures plId
         | Failure s -> unauthorised s
 
-    [<Route("prediction")>][<HttpPost>]
-    member this.AddPrediction (prediction) =
-        let playerId = getPlayerIdCookie base.Request
-        match playerId with
-        | Success plId -> Services.savePredictionPostModel prediction plId; getOkResponseWithBody ""
-        | Failure s -> unauthorised s
-    
-
+        
 [<EnableCors("*", "*", "*")>]
 [<RoutePrefix("api/admin")>]
 type AdminController() =

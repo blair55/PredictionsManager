@@ -6,3 +6,5 @@
 */
 body { padding-top: 70px; }
 /* Everything but the jumbotron gets side spacing for mobile first views */
+
+.team-label {width:50%;text-align: left;}

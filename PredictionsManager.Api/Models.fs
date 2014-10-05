@@ -28,7 +28,7 @@ module ViewModels =
     type ScoreViewModel = { home:int; away:int; }
     
     [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
-    type FixtureViewModel = { home:string; away:string; fxId:string; kickoff:DateTimeOffset; gameWeekNumber:int }
+    type FixtureViewModel = { home:string; away:string; fxId:string; kickoff:DateTime; gameWeekNumber:int }
     
     [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
     type GameWeekDetailsRowViewModel = { fixture:FixtureViewModel; predictionSubmitted:bool; prediction:ScoreViewModel; result:ScoreViewModel; points:int }
@@ -53,7 +53,7 @@ module ViewModels =
 module PostModels =
 
     [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
-    type FixturePostModel = { home:string; away:string; kickOff:DateTime }
+    type FixturePostModel = { home:string; away:string; kickOff:string }
     
     [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
     type GameWeekPostModel = { number:int; fixtures:FixturePostModel list }
@@ -67,10 +67,16 @@ module PostModels =
 module Services =
     
     let getNewGameWeekNo() = getNewGameWeekNo()
-        
+    let longStrToDateTime (s:string) =
+        let d = s.Split('+').[0];
+        Convert.ToDateTime(d)
+
     // build gameweek from post model
-    let createGameWeekFromPostModel (gwpm:GameWeekPostModel) (gwid:GwId) =
-        { GameWeek.id=gwid; number=(GwNo gwpm.number); description="" }
+    let tryCreateGameWeekFromPostModel (gwpm:GameWeekPostModel) (gwid:GwId) =
+        let areAllFixturesInFuture = gwpm.fixtures |> List.exists(fun f -> f.kickOff|>longStrToDateTime < DateTime.Now) = false
+        match areAllFixturesInFuture with
+        | true -> Success { GameWeek.id=gwid; number=(GwNo gwpm.number); description="" }
+        | false -> Failure "Fixture dates must be in the future"
 
     // is gameweek number correct
     let checkGameWeekNo (gw:GameWeek) =
@@ -79,7 +85,9 @@ module Services =
 
     // build fixtures
     let createFixtures (gwpm:GameWeekPostModel) (gw:GameWeek) =
-        gwpm.fixtures |> List.map(fun f -> { Fixture.id=Guid.NewGuid()|>FxId; gameWeek=gw; home=f.home; away=f.away; kickoff=(new DateTimeOffset(f.kickOff)) } )
+        let toKickOff s = (s|>longStrToDateTime)
+        let toFixture f = { Fixture.id=Guid.NewGuid()|>FxId; gameWeek=gw; home=f.home; away=f.away; kickoff=f.kickOff|>toKickOff }
+        gwpm.fixtures |> List.map(toFixture)
 
     // try save gameweek
     let tryToSaveGameWeek gw =
@@ -96,7 +104,7 @@ module Services =
 
     let saveGameWeekPostModel (gwpm:PostModels.GameWeekPostModel) =
         let newGameWeekId = Guid.NewGuid()|>GwId;        
-        newGameWeekId |> (switch (createGameWeekFromPostModel gwpm)
+        newGameWeekId |> ((tryCreateGameWeekFromPostModel gwpm)
                         >> bind checkGameWeekNo
                         >> bind tryToSaveGameWeek
                         >> bind (switch (createFixtures gwpm))
@@ -121,13 +129,24 @@ module Services =
         let result = { Result.fixture=fixture; score=(rpm.score.home,rpm.score.away)  }
         addResult result
 
-    let savePredictionPostModel (ppm:PredictionPostModel) (playerId:string) =
-        let plId = PlId (sToGuid playerId)
-        let fxId = FxId (sToGuid ppm.fixtureId)
-        let (_, fixtures) = getGameWeeksAndFixtures()
-        let players = getPlayers()
-        let fixture = findFixtureById fixtures fxId
-        let player = findPlayerById players plId
-        let prediction = { Prediction.fixture=fixture; player=player; score=(ppm.score.home,ppm.score.away) }
-        addPrediction prediction
+
+    let trySavePredictionPostModel (ppm:PredictionPostModel) (playerId:string) =
+        let tryCreatePrediction() =
+            let plId = PlId (sToGuid playerId)
+            let fxId = FxId (sToGuid ppm.fixtureId)
+            let (_, fixtures) = getGameWeeksAndFixtures()
+            let players = getPlayers()
+            let fixture = findFixtureById fixtures fxId
+            let player = findPlayerById players plId
+            let isPredictionForFixtureInTheFuture = fixture.kickoff < DateTime.Now
+            match isPredictionForFixtureInTheFuture with
+            | true -> Success { Prediction.fixture=fixture; player=player; score=(ppm.score.home,ppm.score.away) }
+            | false -> Failure "Fixture has already kicked off" 
+        
+        let tryAddPrediction p =
+            let addPredictionWithReturn() =
+                addPrediction p; ()
+            tryToWithReturn addPredictionWithReturn
+        
+        () |> (tryCreatePrediction >> bind tryAddPrediction)
         
