@@ -56,26 +56,19 @@
             </li> -->
           </ul>
 
-          <span ng-include src="'views/nav.html'" class="nav navbar-nav">
-            
-          </span>
+          <span ng-include src="'views/nav.html'" class="nav navbar-nav"></span>
 
-          <!-- <ul ng-include src="'views/nav.html'" class="nav navbar-nav navbar-right">
-            
-          </ul> -->
         </div><!--/.nav-collapse -->
       </div>
     </div>
 
     <div class="container">
 
-      <!-- Main component for a primary marketing message or call to action -->
+      <div ng-include src="'views/notifications.html'"></div>
 
       <div ng-view=""></div>
 
     </div> <!-- /container -->
-
-
 
 
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
@@ -110,22 +103,26 @@
     <script src="bower_components/angular-local-storage/dist/angular-local-storage.js"></script>
     <script src="bower_components/moment/moment.js"></script>
     <script src="bower_components/angular-bootstrap-datetimepicker/src/js/datetimepicker.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
-        <!-- build:js({.tmp,app}) scripts/scripts.js -->
-        <script src="scripts/app.js"></script>
-        <script src="scripts/controllers/main.js"></script>
-        <script src="scripts/controllers/leaguetable.js"></script>
-        <script src="scripts/controllers/player.js"></script>
-        <script src="scripts/controllers/playergameweek.js"></script>
-        <script src="scripts/controllers/nav.js"></script>
-        <script src="scripts/controllers/openfixtures.js"></script>
-        <script src="scripts/controllers/adminaddgameweek.js"></script>
-        <script src="scripts/controllers/adminaddresults.js"></script>
-        <script src="scripts/services/auth.js"></script>
-        <script src="scripts/services/interceptor.js"></script>
-        <script src="scripts/directives/submitscore.js"></script>
-        <!-- endbuild -->
+    <!-- build:js({.tmp,app}) scripts/scripts.js -->
+    <script src="scripts/app.js"></script>
+    <script src="scripts/controllers/main.js"></script>
+    <script src="scripts/controllers/leaguetable.js"></script>
+    <script src="scripts/controllers/player.js"></script>
+    <script src="scripts/controllers/playergameweek.js"></script>
+    <script src="scripts/controllers/nav.js"></script>
+    <script src="scripts/controllers/openfixtures.js"></script>
+    <script src="scripts/controllers/adminaddgameweek.js"></script>
+    <script src="scripts/controllers/adminaddresults.js"></script>
+    <script src="scripts/services/auth.js"></script>
+    <script src="scripts/services/interceptor.js"></script>
+    <script src="scripts/directives/submitscore.js"></script>
+    <script src="scripts/directives/loading.js"></script>
+    <script src="scripts/services/notify.js"></script>
+    <script src="scripts/controllers/notifications.js"></script>
+    <!-- endbuild -->
 </body>
 </html>

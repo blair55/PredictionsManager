@@ -8,7 +8,7 @@
  * Factory in the frontendApp.
  */
 angular.module('frontendApp')
-  .factory('interceptor', function ($q, localStorageService) {
+  .factory('interceptor', function ($q, notify) {
       return {
           'request': function(config) {
 
@@ -18,11 +18,6 @@ angular.module('frontendApp')
               var newUrl = "http://localhost:48213" + config.url;
               config.url = newUrl;
             }
-
-            // var player = localStorageService.get('player');
-            // if(player){
-            //   config.headers.playerId = player.Id;
-            // }
             
             return config;
           }
@@ -47,8 +42,7 @@ angular.module('frontendApp')
           // optional method
          'responseError': function(rejection) {
             // do something on error
-            console.log("something went wrong");
-            console.log(rejection);
+            notify.fail(rejection.statusText + " - " + rejection.data);
 
             // if (canRecover(rejection)) {
             //   return responseOrNewPromise

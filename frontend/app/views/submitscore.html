@@ -1,4 +1,8 @@
-<div class="well">
+
+<div ng-if="row.submitted">
+	<alert ng-model="test"></alert>
+</div>
+<div ng-if="!row.submitted" class="well">
 
 	<form class="form" role="form">
 		

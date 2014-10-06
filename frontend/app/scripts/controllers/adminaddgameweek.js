@@ -8,14 +8,14 @@
  * Controller of the frontendApp
  */
 angular.module('frontendApp')
-  .controller('AdminaddgameweekCtrl', function ($scope, $http, $location, localStorageService) {
+  .controller('AdminaddgameweekCtrl', function ($scope, $http, $location, localStorageService, notify) {
 
     $scope.gameweek = {
-  	fixtures: [
-  		{ home:"", away:"", kickoff: new Date() },
-  		{ home:"", away:"", kickoff: new Date() },
-  		{ home:"", away:"", kickoff: new Date() }
-  	]
+    	fixtures: [
+    		{ home:"", away:"", kickoff: new Date() },
+    		{ home:"", away:"", kickoff: new Date() },
+    		{ home:"", away:"", kickoff: new Date() }
+    	]
     };
 
     $http.get('/api/admin/getnewgameweekno').success(function(data){
@@ -34,6 +34,7 @@ angular.module('frontendApp')
 
     $scope.submit = function(){
       $http.post('/api/admin/gameweek', $scope.gameweek).success(function(data){
+        notify.success('gameweek added')
         $location.path('openfixtures');
       });
     };

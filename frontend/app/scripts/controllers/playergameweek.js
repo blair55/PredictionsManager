@@ -9,8 +9,9 @@
  */
 angular.module('frontendApp')
   .controller('PlayergameweekCtrl', function ($scope, $http, $routeParams) {
-	var url = '/api/playergameweek/' + $routeParams.playerName + '/' + $routeParams.gameWeekNo;
+		var url = '/api/playergameweek/' + $routeParams.playerName + '/' + $routeParams.gameWeekNo;
 	    $http.get(url).success(function(data){
+    	$scope.isLoaded = true;
 	    	$scope.model = data;
 	    });
 	  	$scope.playerName = $routeParams.playerName;

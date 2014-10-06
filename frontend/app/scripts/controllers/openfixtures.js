@@ -11,9 +11,10 @@ angular.module('frontendApp')
 	.controller('OpenfixturesCtrl', function ($scope, $http) {
 
     $http.get('/api/openfixtures').success(function(data){
+    	$scope.isLoaded = true;
     	$scope.model = data;
     });
-
+    
 	$scope.submitResult = function(row, index){
 		var prediction = {
 			fixtureId: row.fxId,
@@ -24,6 +25,7 @@ angular.module('frontendApp')
 
 		$http.post('/api/prediction', prediction).success(function(data){
     		$scope.model.rows.splice( index, 1 );
+    		row.submitted = true;
 		});
 	};
 });

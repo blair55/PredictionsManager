@@ -122,7 +122,9 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models.fs" />
+    <Compile Include="Services.fs" />
     <Compile Include="Controllers.fs" />
+    <Compile Include="index.html" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">

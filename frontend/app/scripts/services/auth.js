@@ -8,21 +8,11 @@
  * Service in the frontendApp.
  */
 angular.module('frontendApp')
-  .service('auth', function auth($http, localStorageService) {
+  .service('auth', function auth($http) {
   	var withPlayer = function(callback){
-
-		var localPlayer = localStorageService.get('player');
-
-		if (localPlayer) {
-			callback(localPlayer);
-		}
-		else {
-			$http.get('/api/whoami').success(function(player){
-				localStorageService.set('player', player);
-				callback(player);
-			});
-		}
-
+		$http.get('/api/whoami').success(function(player){
+			callback(player);
+		});
   	};
 
   	return { withPlayer : withPlayer };
