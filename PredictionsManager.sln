@@ -5,14 +5,14 @@ VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "PredictionsManager.Domain", "PredictionsManager.Domain\PredictionsManager.Domain.fsproj", "{310632B0-2816-483E-A5F6-60D354080C0C}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "PredictionsManager.Api", "PredictionsManager.Api\PredictionsManager.Api.fsproj", "{C873FD68-BED4-4A02-AE0A-883313B99B1A}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{168EBBE6-CBBE-46E9-AAB3-F849DF58070D}"
 	ProjectSection(SolutionItems) = preProject
 		.nuget\packages.config = .nuget\packages.config
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PredictionsManager.Host", "PredictionsManager.Host\PredictionsManager.Host.csproj", "{47CF19F7-B62A-4DE3-ADFF-577F38922B10}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "PredictionsManager.Api", "PredictionsManager.Api\PredictionsManager.Api.fsproj", "{9E5A39D8-EC5F-4169-B54B-42DB5293E3E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,14 +24,14 @@ Global
 		{310632B0-2816-483E-A5F6-60D354080C0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{310632B0-2816-483E-A5F6-60D354080C0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{310632B0-2816-483E-A5F6-60D354080C0C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C873FD68-BED4-4A02-AE0A-883313B99B1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C873FD68-BED4-4A02-AE0A-883313B99B1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C873FD68-BED4-4A02-AE0A-883313B99B1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C873FD68-BED4-4A02-AE0A-883313B99B1A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{47CF19F7-B62A-4DE3-ADFF-577F38922B10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{47CF19F7-B62A-4DE3-ADFF-577F38922B10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{47CF19F7-B62A-4DE3-ADFF-577F38922B10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{47CF19F7-B62A-4DE3-ADFF-577F38922B10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E5A39D8-EC5F-4169-B54B-42DB5293E3E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E5A39D8-EC5F-4169-B54B-42DB5293E3E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E5A39D8-EC5F-4169-B54B-42DB5293E3E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E5A39D8-EC5F-4169-B54B-42DB5293E3E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

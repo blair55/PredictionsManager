@@ -19,7 +19,7 @@ module.exports = function (grunt) {
   var appConfig = {
     app: require('./bower.json').appPath || 'app',
     dist: 'dist',
-    exportDist: './../PredictionsManager.Api/'
+    exportDist: './../PredictionsManager.Host/'
   };
 
   // Define the configuration for all the tasks

@@ -12,7 +12,7 @@ namespace PredictionsManager.Host
         protected void Application_Start()
         {
             //GlobalConfiguration.Configure(WebApiConfig.Register);
-            GlobalConfiguration.Configure(PredictionsManager.Api.Global.RegisterWebApi);
+            GlobalConfiguration.Configure(PredictionsManager.Api.Config.RegisterWebApi);
         }
     }
 }

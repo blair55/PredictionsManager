@@ -74,7 +74,28 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="404.html" />
+    <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
+    <Content Include="images\yeoman.png" />
+    <Content Include="index.html" />
+    <Content Include="robots.txt" />
+    <Content Include="scripts\oldieshim.js" />
+    <Content Include="scripts\scripts.js" />
+    <Content Include="scripts\vendor.js" />
+    <Content Include="styles\main.css" />
+    <Content Include="styles\vendor.css" />
+    <Content Include="views\adminaddgameweek.html" />
+    <Content Include="views\adminaddresults.html" />
+    <Content Include="views\leaguetable.html" />
+    <Content Include="views\loading.html" />
+    <Content Include="views\main.html" />
+    <Content Include="views\nav.html" />
+    <Content Include="views\notifications.html" />
+    <Content Include="views\openfixtures.html" />
+    <Content Include="views\player.html" />
+    <Content Include="views\playergameweek.html" />
+    <Content Include="views\submitscore.html" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -88,11 +109,18 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PredictionsManager.Api\PredictionsManager.Api.fsproj">
-      <Project>{c873fd68-bed4-4a02-ae0a-883313b99b1a}</Project>
+      <Project>{9e5a39d8-ec5f-4169-b54b-42db5293e3e4}</Project>
       <Name>PredictionsManager.Api</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include=".htaccess" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
