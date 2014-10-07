@@ -29,6 +29,7 @@ module Domain =
     type Prediction = { fixture:Fixture; score:Score; player:Player }
     type Result = { fixture:Fixture; score:Score }
     type Outcome = HomeWin | AwayWin | Draw
+    type GameWeekWinner = { gameWeek:GameWeek; player:Player; points:int }
 
     let isPlayerAdmin (player:Player) =
         match player.role with
@@ -91,15 +92,14 @@ module Domain =
         |> List.sortBy(fun (_, _, score) -> -score)
         |> List.mapi(fun i (predictions, player, score) -> { position=(i+1); predictions=predictions; player=player; points=score })
 
-    let getGameWeekPointsForPlayer players (predictions:Prediction list) results playerId gameWeekNo =
-        let player = findPlayerById players playerId
+    let getGameWeekPointsForPlayer (predictions:Prediction list) results player gameWeekNo =
         let playerGameWeekPredictions = getPlayerGameWeekPredictions predictions player gameWeekNo
         let points = playerGameWeekPredictions |> List.sumBy(fun p -> getPointsForPrediction p results)
         gameWeekNo, points
 
-    let getAllGameWeekPointsForPlayer players (predictions:Prediction list) results playerId =
+    let getAllGameWeekPointsForPlayer (predictions:Prediction list) results player =
         (getAllGameWeeks results)
-        |> List.map(fun gw -> getGameWeekPointsForPlayer players predictions results playerId gw.number)
+        |> List.map(fun gw -> getGameWeekPointsForPlayer predictions results player gw.number)
         |> List.sortBy(fun gwp -> getGameWeekNo(fst gwp))
         
     let getGameWeekDetailsForPlayer (predictions:Prediction list) results player gameWeekNo =
@@ -126,14 +126,6 @@ module Domain =
         let b = f.kickoff > d
         b
 
-//    let getOpenGameWeeks (gameWeeks:GameWeek list) (fixtures:Fixture list) =
-//        fixtures
-//        |> List.filter(isFixtureOpen)
-//        |> List.map(fun f -> f.gameWeek)
-//        |> Seq.distinctBy(fun gw -> gw)
-//        |> Seq.sortBy(fun gw -> getGameWeekNo gw.number)
-//        |> Seq.toList
-
     let getOpenFixturesForPlayer (predictions:Prediction list) (fixtures:Fixture list) (players:Player list) (plId:PlId) =
         let player = findPlayerById players plId
         let doesFixtureAlreadyHavePredictionFromPlayer (predictions:Prediction list) player fixture =
@@ -153,3 +145,27 @@ module Domain =
         |> List.filter(fun f -> isFixtureOpen f = false)
         |> List.filter(fun f -> hasFilterGotMatchingResult f = false)
 
+
+    let getGameWeekWinner (predictions:Prediction list) (results:Result list) (gameWeek:GameWeek) =
+        predictions
+        |> List.map(fun pr -> pr.player)
+        |> List.map(fun pl -> let (_, points) = getGameWeekPointsForPlayer predictions results pl gameWeek.number
+                              (gameWeek, pl, points))
+        |> List.maxBy(fun (_,_,points) -> points)
+
+    let getPastGameWeeks (predictions:Prediction list) (results:Result list) =
+        results
+        |> List.map(fun r -> r.fixture.gameWeek)
+        |> Seq.distinct
+        |> Seq.map(getGameWeekWinner predictions results)
+        |> Seq.sortBy(fun (gwno, _, _) -> gwno.number)
+        |> Seq.toList
+
+    let getGameWeekScores (predictions:Prediction list) (results:Result list) (gwno:GwNo) =
+        predictions
+        |> List.map(fun pr -> pr.player)
+        |> Seq.distinct
+        |> Seq.map(fun pl -> let (_, points) = getGameWeekPointsForPlayer predictions results pl gwno
+                             (pl, points))
+        |> Seq.sortBy(fun (_, points) -> -points)
+        |> Seq.toList

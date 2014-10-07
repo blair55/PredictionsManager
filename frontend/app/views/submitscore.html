@@ -1,10 +1,10 @@
 
 <div ng-if="row.submitted">
-	<alert ng-model="test">score submitted</alert>
+	<alert type="success">score submitted {{row.home}} v {{row.away}}</alert>
 </div>
 <div ng-if="!row.submitted" class="well">
 
-	<form class="form" role="form">
+	<form class="form" name="form" role="form">
 		
 		<div class="form-group">
 			<span class="label label-default">GW #{{ row.gameWeekNumber }}</span>
@@ -24,7 +24,7 @@
 				<input type="number" class="form-control" ng-model="row.awayScore" required>
 			</div>
 		</div>
-		<button type="submit" ng-d class="btn btn-default" ng-disabled="form.$invalid" ng-click="submitResult(row)">Submit</button>
+		<button type="submit" ng-d class="btn btn-primary" ng-disabled="form.$invalid" ng-click="submitResult(row)">Submit</button>
 	</form>
 
 </div>

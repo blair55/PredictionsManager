@@ -24,7 +24,7 @@ angular.module('frontendApp')
 			}};
 
 		$http.post('/api/prediction', prediction).success(function(data){
-    		$scope.model.rows.splice( index, 1 );
+    		//$scope.model.rows.splice( index, 1 );
     		row.submitted = true;
 		});
 	};

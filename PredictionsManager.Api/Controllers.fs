@@ -71,6 +71,15 @@ type HomeController() =
         base.Request |> (getPlayerIdCookie
                      >> bind (trySavePredictionPostModel prediction)
                      >> resultToHttp)
+
+    [<Route("pastgameweeks")>]
+    member this.GetPastGameWeeks() =
+        () |> (switch getPastGameWeeks >> resultToHttp)
+        
+    [<Route("gameweekscores/{gwno:int}")>]
+    member this.GetGameWeekPoints (gwno:int) =
+        GwNo gwno |> (switch getGameWeekPoints >> resultToHttp)
+
         
 [<EnableCors("*", "*", "*")>]
 [<RoutePrefix("api/admin")>]

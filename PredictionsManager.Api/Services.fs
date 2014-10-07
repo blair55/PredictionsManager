@@ -19,7 +19,7 @@ open PredictionsManager.Domain.Presentation
 module Services =
     
     let getPlayerViewModel (p:Player) = { id=getPlayerId p.id|>str; name=p.name; isAdmin=(p.role=Admin) } 
-    let toFixtureViewModel (f:Fixture) = {home=f.home; away=f.away; fxId=(getFxId f.id)|>str; kickoff=f.kickoff; gameWeekNumber=(getGameWeekNo f.gameWeek.number) }
+    let toFixtureViewModel (f:Fixture) = { home=f.home; away=f.away; fxId=(getFxId f.id)|>str; kickoff=f.kickoff; gameWeekNumber=(getGameWeekNo f.gameWeek.number) }
 
     let getNewGameWeekNo() = getNewGameWeekNo()
 
@@ -76,6 +76,18 @@ module Services =
         let (_, fixtures, results) = getGameWeeksAndFixturesAndResults()
         let rows = getFixturesAwaitingResults fixtures results |> List.map(toFixtureViewModel)
         { FixturesAwaitingResultsViewModel.rows = rows }
+        
+    let getPastGameWeeks() =
+        let (players, results, predictions) = getPlayersAndResultsAndPredictions()
+        let rows = (getPastGameWeeks predictions results) |> List.map(fun (gameWeek, player, points) ->
+                {PastGameWeekRowViewModel.gameWeekNo=(getGameWeekNo gameWeek.number); winner=(getPlayerViewModel player); points=points})
+        { PastGameWeeksViewModel.rows = rows }
+
+    let getGameWeekPoints gwno =
+        let (_, results, predictions) = getPlayersAndResultsAndPredictions()
+        let rows = (getGameWeekScores predictions results gwno) |> List.map(fun (player, points) ->
+            { GameWeekPointsRowViewModel.player=(getPlayerViewModel player); points=points })
+        { GameWeekPointsViewModel.rows=rows }
 
     let saveResultPostModel (rpm:ResultPostModel) =
         let fxId = FxId (sToGuid rpm.fixtureId)
@@ -102,6 +114,8 @@ module Services =
                 addPrediction p; ()
             tryToWithReturn addPredictionWithReturn
         
+        
+
         () |> (tryCreatePrediction >> bind tryAddPrediction)
 
 
@@ -118,12 +132,15 @@ module Services =
         let nd d = new Nullable<DateTimeOffset>(d)
         let c = new CookieHeaderValue(playerIdCookieName, player.id)
         let july1025 = new DateTime(2015, 7, 1)        
-        let uri s = new Uri(s)
         let r = new HttpResponseMessage(HttpStatusCode.Redirect)
         c.Expires <- new DateTimeOffset(july1025) |> nd
         c.Path <- "/"
         r.Headers.AddCookies([c])
-        r.Headers.Location <- request.RequestUri.GetLeftPart(UriPartial.Authority)|>uri
+        let components = match request.IsLocal() with
+                            | true -> UriComponents.Scheme ||| UriComponents.HostAndPort
+                            | false -> UriComponents.Scheme ||| UriComponents.Host
+        let url = request.RequestUri.GetComponents(components, UriFormat.Unescaped)
+        r.Headers.Location <- new Uri(url)
         r
 
     // get player cookie value

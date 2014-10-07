@@ -12,12 +12,12 @@ module Presentation =
             printfn "%i. %s - %i" row.position (row.player.name) row.points
         leagueTable |> List.iter(printLeagueTableRow)
 
-    let printGameWeeksScoreForPlayer players (predictions:Prediction list) results playerId =
-        let gws = getAllGameWeekPointsForPlayer players predictions results playerId
-        let printGameWeekScore gws =
-            let gameWeekNo = getGameWeekNo (fst gws)
-            printfn "%i - %i" gameWeekNo (snd gws)
-        gws |> List.iter printGameWeekScore
+//    let printGameWeeksScoreForPlayer players (predictions:Prediction list) results playerId =
+//        let gws = getAllGameWeekPointsForPlayer players predictions results playerId
+//        let printGameWeekScore gws =
+//            let gameWeekNo = getGameWeekNo (fst gws)
+//            printfn "%i - %i" gameWeekNo (snd gws)
+//        gws |> List.iter printGameWeekScore
 
     let printGameWeekDetailsForPlayer (predictions:Prediction list) results playerId gameWeekNo =
         let gameWeekDetailsForPlayer = getGameWeekDetailsForPlayer predictions results playerId (gameWeekNo|>GwNo)
@@ -47,7 +47,8 @@ module Presentation =
 
     let getGameWeeksPointsForPlayer playerId =
         let (players, results, predictions) = Data.getPlayersAndResultsAndPredictions()
-        getAllGameWeekPointsForPlayer players predictions results (playerId|>PlId)
+        let player = findPlayerById players (playerId|>PlId)
+        getAllGameWeekPointsForPlayer predictions results player
 
     let getPlayerGameWeekPoints playerId gameWeekNo =
         let (players, results, predictions) = Data.getPlayersAndResultsAndPredictions()
@@ -57,7 +58,6 @@ module Presentation =
     let getFixtureDetail fxid =
         let (_, results, predictions) = Data.getPlayersAndResultsAndPredictions()
         getPlayerPredictionsForFixture predictions results (FxId fxid)
-
 
 
     

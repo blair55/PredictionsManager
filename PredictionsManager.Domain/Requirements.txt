@@ -22,3 +22,8 @@ sum points for all users per week to see high/low scoring weeks
 compare outcome variation each week to see which game weeks are more/less predictable
 
 view by fixture - who called the fixture correctly?
+
+// denis nedry gif
+// gravatars
+// date in modal
+// server side validation on score

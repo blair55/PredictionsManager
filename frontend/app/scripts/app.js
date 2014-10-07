@@ -50,6 +50,14 @@ angular
         templateUrl: 'views/adminaddresults.html',
         controller: 'AdminaddresultsCtrl'
       })
+      .when('/pastgameweeks', {
+        templateUrl: 'views/pastgameweeks.html',
+        controller: 'PastgameweeksCtrl'
+      })
+      .when('/gameweekscores/:gameWeekNo', {
+        templateUrl: 'views/gameweekscores.html',
+        controller: 'GameweekscoresCtrl'
+      })
       .otherwise({
         redirectTo: '/'
       });

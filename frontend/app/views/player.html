@@ -3,7 +3,7 @@
 <div class="list-group">
 	<div ng-repeat-start="gwp in model.gameWeekAndPoints"></div>
 	<a href="#/playergameweek/{{playerName}}/{{gwp.gameWeekNo}}" class="list-group-item">
-		<span>GameWeek {{gwp.gameWeekNo}}</span>
+		<span>Game Week #{{gwp.gameWeekNo}}</span>
 		<span class="badge">{{gwp.points}}</span>
 	</a>
 	<div ng-repeat-end></div>

@@ -45,6 +45,19 @@ module ViewModels =
     [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
     type FixturesAwaitingResultsViewModel = { rows: FixtureViewModel list }
 
+    
+    [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
+    type PastGameWeekRowViewModel = { gameWeekNo:int; winner:PlayerViewModel; points:int }
+
+    [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
+    type PastGameWeeksViewModel = { rows:PastGameWeekRowViewModel list }
+
+    [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
+    type GameWeekPointsRowViewModel = { player:PlayerViewModel; points:int }
+    
+    [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
+    type GameWeekPointsViewModel = { rows:GameWeekPointsRowViewModel list }
+
 [<AutoOpen>]
 module PostModels =
 
