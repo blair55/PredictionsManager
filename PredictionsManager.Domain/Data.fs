@@ -29,7 +29,7 @@ module Data =
         cmd.ExecuteNonQuery() |> ignore
         sw.Stop()
         sprintf "%i / %s" sw.ElapsedMilliseconds nq |> log
-        //cn.Close()
+        cn.Close()
         
     let rec getListFromReader (r:NpgsqlDataReader) readerToTypeStrategy list =
         match r.Read() with
@@ -47,7 +47,7 @@ module Data =
         sw.Stop()
         sprintf "%s / %i" q sw.ElapsedMilliseconds |> log
         let results = getListFromReader reader readerToTypeStrategy []
-        //cn.Close()
+        cn.Close()
         results
 
     // writing
@@ -175,9 +175,9 @@ module Data =
 module DummyData =
 
     let rnd = new System.Random()
-    let teamsList = [ "Arsenal"; "Chelsea"; "Liverpool"; "Everton"; "WestHam"; "Qpr"; "Man Utd"; "Man City"; "Newcastle"; "Sunderland";
-                        "Stoke"; "Leicester"; "Spurs"; "Aston Villa"; "West Brom"; "Crystal Palace"; "Hull"; "Burnley"; "Southampton"; "Swansea" ]
-    let playersList = [ for p in [ "bob"; "jim"; "tom"; "ian"; "ron"; "jon"; "tim"; "rob"; "len";  ] -> { Player.id=(Guid.NewGuid()|>PlId); name=p; role=User } ]
+    let teamsList = [ "Arsenal"; "Chelsea"; "Liverpool"; "Everton"; "WestHam"; "Qpr"; "Man Utd"; "Man City"; "Newcastle"; "Sunderland"; ]
+                        //"Stoke"; "Leicester"; "Spurs"; "Aston Villa"; "West Brom"; "Crystal Palace"; "Hull"; "Burnley"; "Southampton"; "Swansea" ]
+    let playersList = [ for p in [ "bob"; "jim"; "tom"; "ian"; "ron"; "jon"; "tim"; "rob"; "len";  ] -> { Player.id=(Guid.NewGuid()|>PlId); name=p; role=Admin } ]
     let gameWeeksList = [ for i in 1..3 -> { GameWeek.id=Guid.NewGuid()|>GwId; number=(GwNo i); description="" } ]
 
     let getTwoDifferentRndTeams (teams:string list) =

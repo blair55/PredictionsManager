@@ -21,16 +21,6 @@ open PredictionsManager.Api.Services
 type HomeController() =
     inherit ApiController()
     
-    [<Route("prediction")>][<HttpPost>]
-    member this.AddPrediction (prediction) =
-        let handle r = match r with
-                        | Success _ -> getOkResponseWithBody ""
-                        | Failure s -> unauthorised s
-
-        base.Request |> (getPlayerIdCookie
-                        >> bind (trySavePredictionPostModel prediction)
-                        >> handle)
-        
     [<Route("whoami")>]
     member this.GetWhoAmI() =
         base.Request |> (getPlayerIdCookie
@@ -40,8 +30,7 @@ type HomeController() =
 
     [<Route("auth/{playerId:Guid}")>]
     member this.GetAuthenticate (playerId:Guid) =
-        let req = base.Request
-        playerId |> (getPlayerFromGuid >> doLogin req)
+        playerId |> (getPlayerFromGuid >> doLogin base.Request)
     
     [<Route("leaguetable")>]
     member this.GetLeagueTable () =
@@ -73,21 +62,20 @@ type HomeController() =
         
     [<Route("openfixtures")>]
     member this.GetOpenFixtures() =
-        let returnFixtures p =
-            let f = Services.getOpenFixtures p
-            getOkResponseWithBody f
-        let playerId = getPlayerIdCookie base.Request
-        match playerId with
-        | Success plId -> returnFixtures plId
-        | Failure s -> unauthorised s
-
+        base.Request |> (getPlayerIdCookie
+                     >> bind (switch getOpenFixtures)
+                     >> resultToHttp)
+                     
+    [<Route("prediction")>][<HttpPost>]
+    member this.AddPrediction (prediction) =
+        base.Request |> (getPlayerIdCookie
+                     >> bind (trySavePredictionPostModel prediction)
+                     >> resultToHttp)
         
 [<EnableCors("*", "*", "*")>]
 [<RoutePrefix("api/admin")>]
 type AdminController() =
     inherit ApiController()
-
-    let ignoreArg arg = ()
 
     [<Route("getnewgameweekno")>]
     member this.GetNewGameWeekNo () =
