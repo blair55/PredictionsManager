@@ -58,6 +58,10 @@ angular
         templateUrl: 'views/gameweekscores.html',
         controller: 'GameweekscoresCtrl'
       })
+      .when('/fixture/:fxid', {
+        templateUrl: 'views/fixture.html',
+        controller: 'FixtureCtrl'
+      })
       .otherwise({
         redirectTo: '/'
       });

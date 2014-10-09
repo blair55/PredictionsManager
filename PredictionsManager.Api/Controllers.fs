@@ -11,7 +11,6 @@ open System.Web.Http.Cors
 open System.Net.Http.Headers
 open PredictionsManager.Domain.Common
 open PredictionsManager.Domain.Domain
-open PredictionsManager.Domain.Presentation
 open PredictionsManager.Api.ViewModels
 open PredictionsManager.Api.PostModels
 open PredictionsManager.Api.Services
@@ -39,26 +38,12 @@ type HomeController() =
 
     [<Route("player/{playerId:Guid}")>]
     member this.GetPlayer (playerId:Guid) =
-        let gameWeeksPoints = (getGameWeeksPointsForPlayer playerId) |> List.map(fun (gw,p) -> { PlayerGameWeekViewModel.gameWeekNo=getGameWeekNo gw; points=p })
-        { PlayerGameWeeksViewModel.gameWeekAndPoints=gameWeeksPoints }
+        playerId |> (switch getGameWeeksPointsForPlayer >> resultToHttp)
 
     [<Route("playergameweek/{playerId:Guid}/{gameWeekNo:int}")>]
     member this.GetPlayerGameWeek (playerId:Guid) (gameWeekNo:int) =
-        let gameWeekDetailRows = (getPlayerGameWeekPoints playerId gameWeekNo)
-        let rowToViewModel (d:GameWeekDetailsRow) =
-            let getVmPred (pred:Prediction option) =
-                match pred with
-                | Some p -> { ScoreViewModel.home=fst p.score;away=snd p.score }
-                | None -> { ScoreViewModel.home=0;away=0 }
-            {
-                GameWeekDetailsRowViewModel.fixture=(toFixtureViewModel d.fixture)
-                predictionSubmitted=d.prediction.IsSome
-                prediction=getVmPred d.prediction
-                result={home=fst d.result.score; away=snd d.result.score}
-                points=d.points
-            }
-        let rows = gameWeekDetailRows |> List.map(rowToViewModel)
-        { GameWeekDetailsViewModel.gameWeekNo=gameWeekNo; totalPoints=rows|>List.sumBy(fun r -> r.points); rows=rows }
+        let getPoints = getPlayerGameWeek playerId
+        gameWeekNo |> (switch getPoints >> resultToHttp)
         
     [<Route("openfixtures")>]
     member this.GetOpenFixtures() =
@@ -79,8 +64,11 @@ type HomeController() =
     [<Route("gameweekscores/{gwno:int}")>]
     member this.GetGameWeekPoints (gwno:int) =
         GwNo gwno |> (switch getGameWeekPoints >> resultToHttp)
-
         
+    [<Route("fixture/{fxId:Guid}")>]
+    member this.GetFixture (fxId:Guid) =
+        FxId fxId |> (switch getPlayerPointsForFixture >> resultToHttp)
+                
 [<EnableCors("*", "*", "*")>]
 [<RoutePrefix("api/admin")>]
 type AdminController() =
@@ -111,5 +99,3 @@ type AdminController() =
         base.Request |> (makeSurePlayerIsAdmin
                      >> bind (switch saveResult)
                      >> resultToHttp)
-
-

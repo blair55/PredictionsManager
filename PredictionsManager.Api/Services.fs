@@ -12,15 +12,13 @@ open Newtonsoft.Json
 open PredictionsManager.Domain.Common
 open PredictionsManager.Domain.Domain
 open PredictionsManager.Domain.Data
-open PredictionsManager.Domain.Presentation
-
 
 [<AutoOpen>]
 module Services =
     
     let getPlayerViewModel (p:Player) = { id=getPlayerId p.id|>str; name=p.name; isAdmin=(p.role=Admin) } 
     let toFixtureViewModel (f:Fixture) = { home=f.home; away=f.away; fxId=(getFxId f.id)|>str; kickoff=f.kickoff; gameWeekNumber=(getGameWeekNo f.gameWeek.number) }
-
+    let toScoreViewModel (p:Prediction) = { ScoreViewModel.home=(fst p.score); away=(snd p.score) }
     let getNewGameWeekNo() = getNewGameWeekNo()
 
     let longStrToDateTime (s:string) =
@@ -79,15 +77,68 @@ module Services =
         
     let getPastGameWeeks() =
         let (players, results, predictions) = getPlayersAndResultsAndPredictions()
-        let rows = (getPastGameWeeks predictions results) |> List.map(fun (gameWeek, player, points) ->
-                {PastGameWeekRowViewModel.gameWeekNo=(getGameWeekNo gameWeek.number); winner=(getPlayerViewModel player); points=points})
+        let rows = (getPastGameWeeks predictions results) |> List.map(fun (player, gameWeekNo, points) ->
+                {PastGameWeekRowViewModel.gameWeekNo=(getGameWeekNo gameWeekNo); winner=(getPlayerViewModel player); points=points})
         { PastGameWeeksViewModel.rows = rows }
 
     let getGameWeekPoints gwno =
         let (_, results, predictions) = getPlayersAndResultsAndPredictions()
-        let rows = (getGameWeekScores predictions results gwno) |> List.map(fun (player, points) ->
+        let rows = (getGameWeekPoints predictions results gwno) |> List.map(fun (player, gameWeekNo, points) ->
             { GameWeekPointsRowViewModel.player=(getPlayerViewModel player); points=points })
-        { GameWeekPointsViewModel.rows=rows }
+        { GameWeekPointsViewModel.gameWeekNo = (getGameWeekNo gwno); rows=rows }
+        
+    let getPlayerPointsForFixture (fxId:FxId) =
+        let (_, fixtures) = getGameWeeksAndFixtures()
+        let fixture = findFixtureById fixtures fxId
+        let (players, results, predictions) = getPlayersAndResultsAndPredictions()
+        let result = results |> List.find(fun r -> r.fixture = fixture)
+        let resultScore = { ScoreViewModel.home=(fst result.score); away=(snd result.score) }
+        let rows = (getPlayerPointsForFixture players predictions results fixture)
+                    |> List.map(fun (player, prediction, points) -> { FixturePointsRowViewModel.player=(getPlayerViewModel player); prediction=(toScoreViewModel prediction); points=points })
+        { FixturePointsViewModel.fixture=(toFixtureViewModel fixture); result=resultScore; rows=rows }
+
+
+
+
+    let getPlayer playerId =
+        getPlayerById (playerId|>PlId)
+
+    let getGameWeeks() =
+        readGameWeeks() |> List.sortBy(fun gw -> gw.number)
+
+    let getLeagueTableRows() =
+        let (_, results, predictions) = getPlayersAndResultsAndPredictions()
+        getLeagueTable predictions results
+
+    let getGameWeeksPointsForPlayer playerId =
+        let (players, results, predictions) = getPlayersAndResultsAndPredictions()
+        let player = findPlayerById players (playerId|>PlId)
+        let gameWeeksPoints = (getAllGameWeekPointsForPlayer predictions results player)
+                              |> List.map(fun (_, gameWeekNo, points) -> { PlayerGameWeekViewModel.gameWeekNo=getGameWeekNo gameWeekNo; points=points })
+        { PlayerGameWeeksViewModel.player=(getPlayerViewModel player); rows=gameWeeksPoints }        
+
+    let getFixtureDetail fxid =
+        let (_, results, predictions) = getPlayersAndResultsAndPredictions()
+        getPlayerPredictionsForFixture predictions results (FxId fxid)
+
+    let getPlayerGameWeek playerId gameWeekNo =
+        let (players, results, predictions) = getPlayersAndResultsAndPredictions()
+        let player = findPlayerById players (playerId|>PlId)
+        let gameWeekDetailRows = getGameWeekDetailsForPlayer predictions results player (gameWeekNo|>GwNo)
+        let rowToViewModel (d:GameWeekDetailsRow) =
+            let getVmPred (pred:Prediction option) =
+                match pred with
+                | Some p -> { ScoreViewModel.home=fst p.score;away=snd p.score }
+                | None -> { ScoreViewModel.home=0;away=0 }
+            {
+                GameWeekDetailsRowViewModel.fixture=(toFixtureViewModel d.fixture)
+                predictionSubmitted=d.prediction.IsSome
+                prediction=getVmPred d.prediction
+                result={home=fst d.result.score; away=snd d.result.score}
+                points=d.points
+            }
+        let rows = gameWeekDetailRows |> List.map(rowToViewModel)
+        { GameWeekDetailsViewModel.gameWeekNo=gameWeekNo; player=(getPlayerViewModel player); totalPoints=rows|>List.sumBy(fun r -> r.points); rows=rows }
 
     let saveResultPostModel (rpm:ResultPostModel) =
         let fxId = FxId (sToGuid rpm.fixtureId)
@@ -114,10 +165,7 @@ module Services =
                 addPrediction p; ()
             tryToWithReturn addPredictionWithReturn
         
-        
-
         () |> (tryCreatePrediction >> bind tryAddPrediction)
-
 
         
     let playerIdCookieName = "playerId"

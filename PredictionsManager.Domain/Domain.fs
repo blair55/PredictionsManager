@@ -95,12 +95,12 @@ module Domain =
     let getGameWeekPointsForPlayer (predictions:Prediction list) results player gameWeekNo =
         let playerGameWeekPredictions = getPlayerGameWeekPredictions predictions player gameWeekNo
         let points = playerGameWeekPredictions |> List.sumBy(fun p -> getPointsForPrediction p results)
-        gameWeekNo, points
+        player, gameWeekNo, points
 
     let getAllGameWeekPointsForPlayer (predictions:Prediction list) results player =
         (getAllGameWeeks results)
         |> List.map(fun gw -> getGameWeekPointsForPlayer predictions results player gw.number)
-        |> List.sortBy(fun gwp -> getGameWeekNo(fst gwp))
+        |> List.sortBy(fun (_, gwno, _) -> getGameWeekNo gwno)
         
     let getGameWeekDetailsForPlayer (predictions:Prediction list) results player gameWeekNo =
         let playerGameWeekPredictions = getPlayerGameWeekPredictions predictions player gameWeekNo
@@ -149,8 +149,7 @@ module Domain =
     let getGameWeekWinner (predictions:Prediction list) (results:Result list) (gameWeek:GameWeek) =
         predictions
         |> List.map(fun pr -> pr.player)
-        |> List.map(fun pl -> let (_, points) = getGameWeekPointsForPlayer predictions results pl gameWeek.number
-                              (gameWeek, pl, points))
+        |> List.map(fun pl -> getGameWeekPointsForPlayer predictions results pl gameWeek.number)
         |> List.maxBy(fun (_,_,points) -> points)
 
     let getPastGameWeeks (predictions:Prediction list) (results:Result list) =
@@ -158,14 +157,25 @@ module Domain =
         |> List.map(fun r -> r.fixture.gameWeek)
         |> Seq.distinct
         |> Seq.map(getGameWeekWinner predictions results)
-        |> Seq.sortBy(fun (gwno, _, _) -> gwno.number)
+        |> Seq.sortBy(fun (_, gwno, _) -> gwno)
         |> Seq.toList
 
-    let getGameWeekScores (predictions:Prediction list) (results:Result list) (gwno:GwNo) =
+    let getGameWeekPoints (predictions:Prediction list) (results:Result list) (gwno:GwNo) =
         predictions
         |> List.map(fun pr -> pr.player)
         |> Seq.distinct
-        |> Seq.map(fun pl -> let (_, points) = getGameWeekPointsForPlayer predictions results pl gwno
-                             (pl, points))
-        |> Seq.sortBy(fun (_, points) -> -points)
+        |> Seq.map(fun pl -> getGameWeekPointsForPlayer predictions results pl gwno)
+        |> Seq.sortBy(fun (_, _, points) -> -points)
+        |> Seq.toList
+
+    let getPointsForFixtureForPlayer (predictions:Prediction list) (results:Result list) fixture player =
+        let prediction = predictions |> List.filter(fun p -> p.player = player) |> List.find(fun p -> p.fixture = fixture)
+        let result = results |> List.find(fun r -> r.fixture = fixture)
+        let points = getPointsForPredictionComparedToResult prediction result
+        (prediction, points)
+
+    let getPlayerPointsForFixture (players:Player list) (predictions:Prediction list) (results:Result list) (fixture:Fixture) =
+        players
+        |> Seq.map(fun pl -> let (prediction, points) = getPointsForFixtureForPlayer predictions results fixture pl
+                             (pl, prediction, points))
         |> Seq.toList

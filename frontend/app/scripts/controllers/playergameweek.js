@@ -14,6 +14,4 @@ angular.module('frontendApp')
     	$scope.isLoaded = true;
 	    	$scope.model = data;
 	    });
-	  	$scope.playerName = $routeParams.playerName;
-	  	$scope.gameWeekNo = $routeParams.gameWeekNo;
   });

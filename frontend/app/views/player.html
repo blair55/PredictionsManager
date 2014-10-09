@@ -1,10 +1,10 @@
-<span>Player name: {{playerName}}</span>
+<span>Player name: {{model.player.name}}</span>
 <loading></loading>
 <div class="list-group">
-	<div ng-repeat-start="gwp in model.gameWeekAndPoints"></div>
-	<a href="#/playergameweek/{{playerName}}/{{gwp.gameWeekNo}}" class="list-group-item">
-		<span>Game Week #{{gwp.gameWeekNo}}</span>
-		<span class="badge">{{gwp.points}}</span>
+	<div ng-repeat-start="row in model.rows"></div>
+	<a href="#/playergameweek/{{model.player.id}}/{{row.gameWeekNo}}" class="list-group-item">
+		<span>Game Week #{{row.gameWeekNo}}</span>
+		<span class="badge">{{row.points}}</span>
 	</a>
 	<div ng-repeat-end></div>
 </div>

@@ -1,10 +1,10 @@
-<span>Player name: {{playerName}}</span>
-<span>GameWeek: {{gameWeekNo}}</span>
+<span>Player name: {{model.player.name}}</span>
+<span>GameWeek: {{model.gameWeekNo}}</span>
 <span>Total: {{model.totalPoints}}</span>
 <loading></loading>
 <div class="list-group">
 	<div ng-repeat-start="row in model.rows"></div>
-	<div class="list-group-item">
+	<a href="#/fixture/{{row.fixture.fxId}}" class="list-group-item">
 		<span class="badge">{{row.points}}</span>
 		<div>
 			<span>{{row.fixture.home}}</span> v <span>{{row.fixture.away}}</span>
@@ -15,6 +15,6 @@
 		<div class="small">
 			Prediction <span>{{row.prediction.home}}</span> v <span>{{row.prediction.away}}</span>
 		</div>
-	</div>
+	</a>
 	<div ng-repeat-end></div>
 </div>

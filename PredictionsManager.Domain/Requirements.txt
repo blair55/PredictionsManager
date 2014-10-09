@@ -22,6 +22,7 @@ sum points for all users per week to see high/low scoring weeks
 compare outcome variation each week to see which game weeks are more/less predictable
 
 view by fixture - who called the fixture correctly?
+view predictions for fixture before game kicks off
 
 // denis nedry gif
 // gravatars

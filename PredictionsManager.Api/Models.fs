@@ -22,7 +22,7 @@ module ViewModels =
     type PlayerGameWeekViewModel = { gameWeekNo:int; points:int; }
     
     [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
-    type PlayerGameWeeksViewModel = { gameWeekAndPoints:PlayerGameWeekViewModel list }
+    type PlayerGameWeeksViewModel = { player:PlayerViewModel; rows:PlayerGameWeekViewModel list }
     
     [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
     type ScoreViewModel = { home:int; away:int; }
@@ -34,7 +34,7 @@ module ViewModels =
     type GameWeekDetailsRowViewModel = { fixture:FixtureViewModel; predictionSubmitted:bool; prediction:ScoreViewModel; result:ScoreViewModel; points:int }
     
     [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
-    type GameWeekDetailsViewModel = { gameWeekNo:int; totalPoints:int; rows:GameWeekDetailsRowViewModel list }
+    type GameWeekDetailsViewModel = { gameWeekNo:int; player:PlayerViewModel; totalPoints:int; rows:GameWeekDetailsRowViewModel list }
 
     [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
     type OpenGameWeeksViewModel = { rows: int list }
@@ -44,7 +44,6 @@ module ViewModels =
 
     [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
     type FixturesAwaitingResultsViewModel = { rows: FixtureViewModel list }
-
     
     [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
     type PastGameWeekRowViewModel = { gameWeekNo:int; winner:PlayerViewModel; points:int }
@@ -56,7 +55,14 @@ module ViewModels =
     type GameWeekPointsRowViewModel = { player:PlayerViewModel; points:int }
     
     [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
-    type GameWeekPointsViewModel = { rows:GameWeekPointsRowViewModel list }
+    type GameWeekPointsViewModel = { gameWeekNo:int; rows:GameWeekPointsRowViewModel list }
+
+    [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
+    type FixturePointsRowViewModel = { player:PlayerViewModel; prediction:ScoreViewModel; points:int }
+
+    [<CLIMutable>][<JsonObject(MemberSerialization=MemberSerialization.OptOut)>]
+    type FixturePointsViewModel = { fixture:FixtureViewModel; result:ScoreViewModel; rows:FixturePointsRowViewModel list }
+
 
 [<AutoOpen>]
 module PostModels =
