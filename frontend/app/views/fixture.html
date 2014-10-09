@@ -1,7 +1,6 @@
 <h3>Fixture</h3>
 <loading></loading>
-<h4>{{model.fixture.home}} v {{model.fixture.away}}</h4>
-<h4>{{model.result.home}} v {{model.result.away}}</h4>
+<h4>{{model.fixture.home}} {{model.result.home}} v {{model.result.away}} {{model.fixture.away}}</h4>
 <a href="#/gameweekscores/{{model.fixture.gameWeekNumber}}">Game Week #{{model.fixture.gameWeekNumber}}</a>
 <div class="list-group">
 	<div ng-repeat-start="row in model.rows"></div>
